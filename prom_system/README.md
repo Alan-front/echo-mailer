@@ -1,35 +1,29 @@
-# prom_system
+# Echo Mailer
 
-This template should help get you started developing with Vue 3 in Vite.
+## Descripción
+Echo Mailer es una aplicación diseñada para promocionar artistas emergentes enviando campañas de email a medios (radios, TV, revistas) de manera rápida, automatizada y multilingüe.
 
-## Recommended IDE Setup
+Lo que antes llevaba semanas de trabajo manual, ahora se realiza en minutos: envíos masivos, seguimiento de respuestas y asignación automática de tareas según el contenido recibido.
 
-[VSCode](https://code.visualstudio.com/) + [Volar](https://marketplace.visualstudio.com/items?itemName=Vue.volar) (and disable Vetur).
+## Funcionalidad destacada
+- Envía emails masivos con plantillas y archivos asignados según el idioma del contacto.
+- Extrae respuestas automáticamente desde bandejas de correo mediante IMAP.
+- Analiza y clasifica respuestas con IA + regex + 2 tokens para máxima confiabilidad.
+- Asigna tareas automáticamente: enviar audio, video, ficha técnica o marcar para revisión manual si algo está fuera de contexto.
+- Organiza PDFs y archivos por idioma.
+- Genera estadísticas de envío y seguimiento de la campaña con gráficos personalizados usando la librería Chart y colores de marca.
 
-## Customize configuration
+## Tecnologías utilizadas
+- **Frontend:** Vue 3 (script setup) con Bootstrap personalizado.
+- **Backend:** PHP, PHPMailer, IMAP.
+- **IA:** Sistema robusto de análisis de mensajes con 2 tokens y regex.
+- **Visualización:** Librería Chart personalizada con colores de marca.
 
-See [Vite Configuration Reference](https://vite.dev/config/).
+## Estado actual
+- Lógica principal funcional y testeada con casos reales ✅
+- Responsive y ajustes visuales pendientes ⚠️
+- Optimizado para PC y tablet; no recomendado para celulares en campañas grandes.
 
-## Project Setup
-
-```sh
-npm install
-```
-
-### Compile and Hot-Reload for Development
-
-```sh
-npm run dev
-```
-
-### Compile and Minify for Production
-
-```sh
-npm run build
-```
-
-### Run Unit Tests with [Vitest](https://vitest.dev/)
-
-```sh
-npm run test:unit
-```
+## Demo
+🎬 Mira cómo funciona la app en este video:  
+[Enlace al video de demostración](https://youtu.be/RX90JK09Tv4)
