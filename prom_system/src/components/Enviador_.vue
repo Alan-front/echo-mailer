@@ -2,7 +2,7 @@
 
 	<div class="container miContenedor">
 
-		<h1 class="text-center">Gestor de Campañas</h1>
+		<h1 class="text-center principal">Gestor de Campañas</h1>
 		<h5 class="text-center">Crea y administra tus campañas de email marketing.</h5>
 		
 		<br>
@@ -84,15 +84,31 @@
         </div>
     </div>
     <div class="row">
+    <div class="col-md-6 mb-3">
       <label  class="form-label subti">Utilisateur</label>
  
-      <select class="form-select" v-model="signature">
+      <select class="form-select firma-select" v-model="signature">
         <option disabled value="" selected>Choisir un utilisateur</option>
         <option v-for="cuenta in enviadoresEmails" :key="cuenta.id" :value="cuenta.id">
           {{ cuenta.sender_name }}
         </option>
 
       </select>
+      </div>
+
+      <div class="col-md-6 mb-3">
+  <label for="signatureInput" class="form-label subti">Pays</label>
+  <input 
+  v-model="filtrarPorPais" 
+  type="text" 
+  class="form-control" 
+  id="paysInput" 
+  placeholder="Choisir un pays"
+>
+  
+</div>
+
+      
     </div>
 
 </div>
@@ -100,41 +116,68 @@
 
 
 			<div class="mb-3 datos-camp" v-else>
-    		<label for="campagneSelect" 
+
+        <div class="row camp-exist">
+          <div class="col-md-6 mb-3 dato-exis">
+            
+            <label for="campagneSelect" 
 			class="form-label subti">Elegir campaña existente</label>
 
-			<select v-model="campagne" class="form-select" aria-label="Default select example">
-    <option value="" disabled selected>Selecciona una campaña</option>
-    <option v-for="camp in campActivasEnviadas" :key="camp.id" :value="camp.id">
-        {{ camp.tipo_de_lanzamiento }} {{ camp.nombre_lanzamiento }}
-    </option>
-</select>
+            <select v-model="campagne" class="form-select" aria-label="Default select example">
+          <option value="" disabled selected>Selecciona una campaña</option>
+          <option v-for="camp in campActivasEnviadas" :key="camp.id" :value="camp.id">
+              {{ camp.tipo_de_lanzamiento }} {{ camp.nombre_lanzamiento }}
+          </option>
+      </select>
+          </div>
+
+            
+
+              <div class="mb-4 data-camp">
+              <p>
+                <span class="campo-nombre">Artista:</span><br>
+                <span class="campo-valor">{{ selectedCamp?.artista || '' }}</span>
+              </p>
+            </div>
+
+            <div class="mb-4 data-camp">
+              <p>
+                <span class="campo-nombre">Lien:</span><br>
+                <span v-if="selectedCamp?.enlace" class="campo-valor">
+                  <a class="link-camp" :href="selectedCamp.enlace" target="_blank" rel="noopener">{{ selectedCamp.enlace }}</a>
+                </span>
+              </p>
+            </div>
+
+            <div class="mb-4 data-camp">
+              <p>
+                <span class="campo-nombre">Genre:</span><br>
+                <span class="campo-valor">{{ selectedCamp?.music_genre || '' }}</span>
+              </p>
+            </div>
+
+
+
+            <div class="col-md-6 mb-3">
+              <label for="signatureInput" class="form-label subti">Pays</label>
+              <input 
+                  v-model="filtrarPorPaisExistente" 
+                  type="text" 
+                  class="form-control" 
+                  placeholder="Choisir un pays"
+                >
+            </div>
+          
+
+  </div>
+
+          
+
+    		
         
 				<br>
 
 
-	<div class="mb-4 data-camp">
-  <p>
-    <span class="campo-nombre">Artista:</span><br>
-    <span class="campo-valor">{{ selectedCamp?.artista || '' }}</span>
-  </p>
-</div>
-
-<div class="mb-4 data-camp">
-  <p>
-    <span class="campo-nombre">Lien:</span><br>
-    <span v-if="selectedCamp?.enlace" class="campo-valor">
-      <a class="link-camp" :href="selectedCamp.enlace" target="_blank" rel="noopener">{{ selectedCamp.enlace }}</a>
-    </span>
-  </p>
-</div>
-
-<div class="mb-4 data-camp">
-  <p>
-    <span class="campo-nombre">Genre:</span><br>
-    <span class="campo-valor">{{ selectedCamp?.music_genre || '' }}</span>
-  </p>
-</div>
 
 
 				<!-- div de boton de filtrar toggle -->
@@ -159,14 +202,14 @@
 			
 <div class="btn-group " role="group" aria-label="...">
           <button @click="mostrarPrevisualizacion" 
-		  class="btn btn-secondary" type="button"
+		  class="btn btn-echo second" type="button"
       :disabled="!formularioCompleto && !selectedCamp">
             <i class="fas fa-eye" aria-hidden="true"></i> Previsualizar Correos
           </button>
           
           <button
 			id="btn-preview"
-			class="btn btn-secondary"
+			class="btn btn-echo second"
 			type="button"
 			:disabled="!formularioCompleto && !selectedCamp"
 			@click="mostrarTabla = true"
@@ -174,7 +217,7 @@
 			<i class="fas fa-table" aria-hidden="true"></i> Mostrar Contactos
 			</button>
           
-          <button class="btn btn-success" type="button" 
+          <button class="btn btn-echo action" type="button" 
 		  :disabled="!showPreview || deshabilitarChecks" @click="enviarCorreos">
             <i class="fa fa-paper-plane"></i> Enviar Seleccionados
           </button>
@@ -184,7 +227,7 @@
 
 		</form>
 
-    <div class="debug-form small text-muted mt-2">
+    <!-- <div class="debug-form small text-muted mt-2">
   campagne: {{ campagne }} |
   lancement: {{ lancement }} |
   nomLancement: {{ nomLancement }} |
@@ -193,7 +236,7 @@
   genre: {{ genre }} |
   form completo: {{ formularioCompleto }} 
   
-</div>
+</div> -->
 
 
 
@@ -292,8 +335,8 @@ aria-labelledby="confirmModalLabel" aria-hidden="true">
         <p id="modalMessage">¿Estás seguro que deseas enviar estos correos?</p>
       </div>
       <div class="modal-footer">
-        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal" id="cancelBtn">Cancelar</button>
-        <button type="button" class="btn btn-primary" id="confirmBtn">Confirmar Envío</button>
+        <button type="button" class="btn btn-eclose" data-bs-dismiss="modal" id="cancelBtn">Cancelar</button>
+        <button type="button" class="btn btn-econf" id="confirmBtn">Confirmar Envío</button>
       </div>
     </div>
   </div>
@@ -363,7 +406,7 @@ aria-labelledby="confirmModalLabel" aria-hidden="true">
             </button>
           </div>
         </div>
-        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cerrar</button>
+        <button type="button" class="btn btn-eclose" data-bs-dismiss="modal">Cerrar</button>
       </div>
     </div>
   </div>
@@ -406,14 +449,19 @@ aria-labelledby="confirmModalLabel" aria-hidden="true">
 
 		<!-- modal backdrop -->
 
-		<div v-if="enviando" class="modal-backdrop show" style="z-index: 9999;">
-  <div class="d-flex justify-content-center align-items-center vh-100">
-    <div class="text-center bg-white p-4 rounded shadow">
-      <div class="spinner-border text-primary mb-3" role="status"></div>
-      <p class="mb-0">Enviando correos, por favor espera...</p>
+		<transition name="overlay">
+  <div v-if="mostrandoOverlay" class="overlay-loading d-flex justify-content-center align-items-center">
+    <div class="card text-center p-4 shadow-lg text-light rounded-4 container-overlay">
+      <div class="mb-3">
+        <div class="spinner-grow text-light" style="width: 4rem; height: 4rem;" role="status">
+          <span class="visually-hidden">Cargando...</span>
+        </div>
+      </div>
+      <h5 class="mb-2">{{ textoOverlay }}</h5>
+      <small class="text-secondary subtitulo">Esto puede tardar varios minutos...</small>
     </div>
   </div>
-</div>
+</transition>
 
 
 
@@ -437,11 +485,15 @@ const emailsEnviados = ref([])
 const filtroYaEnviados = ref(false)
 const emailsYaEnviados = ref([])
 const enviadoresEmails = ref([])
+const filtrarPorPais = ref('');
+const filtrarPorPaisExistente = ref('');
 
  // filtrando las inactivas
 const campActivasEnviadas = computed(() => {
   return campEnviadas.value?.filter(camp => camp.activa == 1 && camp.sb != 0) || []
 })
+
+
 
 
 console.log('las enviadas active', campEnviadas.value.map(c => ({ id: c.id, activa: c.activa, sb: c.sb, tipo: typeof c.sb })))
@@ -453,6 +505,8 @@ const campagne = ref("");  		//   input 1
 const lancement = ref("");		//   select 1
 const signature = ref ("")
 const nomLancement = ref("");
+const pays = ref ("");		//   input 3
+
 const lien = ref("");	//   input 2
 const genre = ref("");			//   select 2
 
@@ -466,7 +520,18 @@ const deshabilitarChecks = computed(() => {
   }
 });
 
-const enviando = ref(false);
+const mostrandoOverlay = ref(false);
+const textoOverlay = ref('');
+
+// Funciones helper
+const mostrarOverlay = (texto = 'Procesando...') => {
+  textoOverlay.value = texto;
+  mostrandoOverlay.value = true;
+};
+
+const ocultarOverlay = () => {
+  mostrandoOverlay.value = false;
+};
 
 
   //  obtener la campaña seleccionada
@@ -734,6 +799,17 @@ const datosFiltrados = computed(() => {
     //  si no coincide el genero, no mostrar
     if (!coincideGenero) return false;
     
+    // NUEVO: Filtro por país
+    // Filtro por país (ambos modos)
+const filtroCountry = showSelect.value ? filtrarPorPaisExistente.value : filtrarPorPais.value;
+if (filtroCountry.trim()) {
+  const paisItem = (item.country || '').trim().toLowerCase();
+  const paisBuscado = filtroCountry.trim().toLowerCase();
+  if (!paisItem.includes(paisBuscado)) {
+    return false;
+  }
+}
+    
     //  filtro de enviados cuando esta activo
     if (showSelect.value && filtroYaEnviados.value) {
       // mostrar solo los que no han sido enviados (filtrar enviados)
@@ -757,7 +833,8 @@ function limpiarYCargar(nuevoValor){
   genre.value = "";
   nomLancement.value = "";
   signature.value = "";
-  
+  filtrarPorPais.value = "";
+  filtrarPorPaisExistente.value = "";
   	// ocultar  tabla
   mostrarTabla.value = false;
 
@@ -1085,13 +1162,24 @@ function mostrarModalConfirmacion (mensaje) {
 
 async function enviarCorreos() {
 
+
+ console.log('=== DEBUG ENVIAR CORREOS ===');
+  console.log('showSelect.value:', showSelect.value);
+  console.log('selectedCamp.value:', selectedCamp.value);
+  console.log('signature.value:', signature.value);
+  console.log('checkeds.value:', checkeds.value);
+  console.log('datosFiltrados.value:', datosFiltrados.value);
+
+  const seleccionados = datosFiltrados.value.filter(item => checkeds.value.includes(item.id));
+  console.log('seleccionados:', seleccionados);
+
 	 console.log ('el valor de signature es:', signature.value);
   
   
 
 
 	
-const seleccionados = datosFiltrados.value.filter(item => checkeds.value.includes(item.id));
+// const seleccionados = datosFiltrados.value.filter(item => checkeds.value.includes(item.id));
 
 		
 
@@ -1278,7 +1366,7 @@ const seleccionados = datosFiltrados.value.filter(item => checkeds.value.include
 	console.log('usuaio confirmo');
 
 
-enviando.value = true;
+mostrarOverlay('Enviando correos, por favor espera...');
 
 await new Promise(resolve => setTimeout(resolve, 100));	
 
@@ -1306,7 +1394,7 @@ fetch('http://localhost/conex-prom-system/api/enviar-emails.php', {
     mostrarToastError('Hubo un error al enviar los correos. Inténtalo de nuevo.');
   })
   .finally(() => {
-  enviando.value = false;
+  ocultarOverlay();
 });
 
 
@@ -1409,6 +1497,60 @@ console.log('enviar a campaña existente (emails para envar):', emailsParaEnviar
 
 <style scoped>
 
+
+
+
+
+
+    /* spinner */
+/* Fondo desenfocado y oscuro */
+.modal-backdrop {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  z-index: 9999;
+  
+  backdrop-filter: blur(3px) saturate(120%) !important;
+  background-color: rgba(8, 47, 56, 0.432) !important;
+  /* -webkit-backdrop-filter: blur(8px); */
+}
+
+/* Contenedor central tipo glass */
+.div-espere {
+  background-color: var(--dark-echo) !important;
+  color: var(--light-echo);
+  padding: 2rem;
+  border-radius: 1rem;
+  box-shadow: 0 0 20px rgba(0,0,0,0.5);
+  text-align: center;
+  backdrop-filter: blur(5px);
+  -webkit-backdrop-filter: blur(5px);
+}
+
+/* Texto claro */
+.div-espere p {
+  color: var(--light-echo);
+  font-size: 1.1rem;
+}
+
+/* Spinner blanco */
+.div-espere .spinner-border {
+  color: var(--light-echo);
+  border-color: var(--light-echo);
+  border-right-color: transparent;
+}
+
+
+
+#errorToastMessage, 
+#toastMessage {
+  color: var(--light-echo);
+  
+}
+
+
 .caja{
 
 	width: 345px;
@@ -1417,10 +1559,154 @@ console.log('enviar a campaña existente (emails para envar):', emailsParaEnviar
 	color: brown;
 }
 
+:global(body.modal-open) {
+  overflow-y: scroll !important;
+  padding-right: 0 !important;
+}
 
 .btn-group-toggle input[type="radio"] {
   display: none;
 }
+
+/* inputs */
+
+
+.datos-camp input.form-control,
+.datos-camp select.form-select, .form-control {
+  background-color: var(--medium-echo);
+  color: var(--bright-echo);
+  border: 1px solid var(--medium-echo);
+  border-radius: 12px;
+  padding: 8px 14px;
+  transition: all 0.3s ease;
+  box-shadow: inset 0 0 5px rgba(0, 0, 0, 0.2);
+}
+
+    /* placeholder */
+.datos-camp input.form-control::placeholder {
+  color: var(--bright-echo);
+  opacity: 0.6;
+}
+
+/* focus */
+.datos-camp input.form-control:focus,
+.datos-camp select.form-select:focus {
+  outline: none;
+  background-color: var(--dark-echo);
+  border-color: var(--light-echo);
+  box-shadow:
+    0 0 0 2px var(--light-echo),
+    0 0 8px var(--medium-echo);
+  color: var(--light-echo);
+}
+
+/* labels */
+.datos-camp .form-label.subti {
+  color: var(--dark-echo) !important;
+  font-weight: 00;
+}
+
+/* options select */
+.datos-camp select.form-select option {
+  background-color: var(--dark-echo);
+  color: var(--light-echo);
+}
+
+/* non validation */
+.text-danger {
+  color: #ff5555 !important;
+}
+
+#confirmModal,
+#previewModal{
+  backdrop-filter: blur(2px) saturate(130%);
+  background-color: rgba(8, 47, 56, 0.322);
+}
+
+
+
+/* mantenimiento */
+/* 
+
+:global(body.modal-open) {
+  padding-right: 0 !important;
+}
+
+
+:global(.modal-open .container),
+:global(.modal-open .miContenedor) {
+  padding-right: 0 !important;
+  margin-right: auto !important;
+}
+
+
+:global(.modal-open) {
+  overflow: hidden;
+  padding-right: 0 !important;
+}
+
+
+:global(.modal-backdrop) ~ * .container,
+:global(.modal-backdrop) ~ * .miContenedor {
+  transition: none !important;
+  padding-right: 0 !important;
+} */
+
+/* fin del problema */
+
+/* .modal-content {
+  background-color: var(--dark-echo);
+  color: var(--light-echo);
+  border-radius: 12px;
+  border: 1px solid var(--medium-echo);
+}
+
+.modal-body{
+  background-color: white;
+  color: black;
+  padding: 20px;
+} */
+
+.modal-footer, 
+.modal-header{
+  background-color: var(--dark-echo);
+  color: var(--light-echo);
+  border-top: 1px solid var(--medium-echo);
+}
+
+.btn-langue{
+  background-color: var(--dark-echo);
+  color: var(--light-echo);
+}
+
+.btn-langue:hover{
+  background-color: var(--light-echo);
+  color: var(--dark-echo);
+}
+
+.btn-langue:focus {
+  outline: yellowgreen;
+  box-shadow: 0 0 0 2px var(--light-echo);
+}
+.btn-langue:focus-visible {
+  outline: none;
+  box-shadow: none;
+}
+.btn-langue.selected {
+  background-color: var(--light-echo);
+  color: var(--dark-echo);
+  
+}
+
+.btn-close {
+  filter: brightness(0) saturate(100%) invert(90%) sepia(10%) saturate(500%) hue-rotate(180deg);
+  /* Esto se puede ajustar para el color deseado */
+}
+
+.btn-close:focus {
+  box-shadow: none; /* quita el borde azul al hacer clic */
+}
+
 
 
 </style>

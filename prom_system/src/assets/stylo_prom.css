@@ -9,7 +9,7 @@
 }
 
 .casi_real .form-check-input:checked {
-    background-color: #4cd137; /* color de fondo cuando está encendido */
+    background-color: #4cd137; 
 }
 
 .casi_real .form-check-input:before {
@@ -17,9 +17,9 @@
     position: absolute;
     top: 4px;
     left: 4px;
-    width: 26px; /* tamaño del círculo */
-    height: 26px; /* tamaño del círculo */
-    background-color: white; /* color del círculo */
+    width: 26px; 
+    height: 26px; 
+    background-color: white; 
     border-radius: 50%; /* bordes redondeados */
     transition: transform 0.3s ease;
 }

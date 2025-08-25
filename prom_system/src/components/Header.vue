@@ -91,16 +91,23 @@ const $route = useRoute()
 <style scoped>
 
 nav.navbar {
-  background-color: hsla(318, 18%, 86%, 0.342) !important;
-  color: white;
-  box-shadow: 0 2px 4px rgba(0,0,0,0.2);
-  padding: 1px 20px;
+   background: rgba(61, 61, 61, 0.15) !important;
+ backdrop-filter: blur(10px) saturate(180%);
+ -webkit-backdrop-filter: blur(10px) saturate(180%);
+ color: var(--light-echo) !important;
+ box-shadow: 0 2px 4px rgba(0,0,0,0.2);
+ padding: 1px 20px;
+ border-bottom: 1px solid rgba(255, 255, 255, 0.1);
 }
 
 .echoLi .nav-link {
-  color: rgb(235, 238, 231) !important;
+  color:var(--light-echo) !important;
   font-size: 1.1em;
-  text-shadow: 0 1px 2px rgba(0,0,0,0.5) ;
+
+  
+  border-radius: 18px;
+  
+   
   margin-inline: 1px;
   padding-inline: 20px;
   
@@ -109,7 +116,7 @@ nav.navbar {
 .echoLi .nav-link:hover{
   background-color: rgba(201, 204, 204, 0.514);
   border-radius: 18px;
-  color: rgba(59, 6, 59, 0.795) !important;
+  color: var(--dark-echo) !important;
   
   text-shadow: none;
   box-shadow: 1px 1px 2px rgba(233, 229, 229, 0.562) !important;
