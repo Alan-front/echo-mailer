@@ -1247,292 +1247,70 @@ function mostrarToastError(mensaje) {
 // });
 
 async function enviarCorreos() {
-  console.log("=== DEBUG ENVIAR CORREOS ===");
-  console.log("showSelect.value:", showSelect.value);
-  console.log("selectedCamp.value:", selectedCamp.value);
-  console.log("signature.value:", signature.value);
-  console.log("checkeds.value:", checkeds.value);
-  console.log("datosFiltrados.value:", datosFiltrados.value);
-
   const seleccionados = datosFiltrados.value.filter((item) =>
     checkeds.value.includes(item.id)
   );
-  console.log("seleccionados:", seleccionados);
-
-  console.log("el valor de signature es:", signature.value);
-
-  // const seleccionados = datosFiltrados.value.filter(item => checkeds.value.includes(item.id));
-
-  const datosParaEnviar = seleccionados.map((item) => {
-    const tradLanzamiento = {
-      // tipo de lanzamiento
-      Album: {
-        French: "album",
-        English: "album",
-        Russian: "альбом",
-        Ukrainian: "альбом",
-        Korean: "앨범",
-        Japanese: "アルバム",
-        Spanish: "álbum",
-      },
-      EP: {
-        French: "EP",
-        English: "EP",
-        Russian: "EP",
-        Ukrainian: "EP",
-        Korean: "EP",
-        Japanese: "EP",
-        Spanish: "EP",
-      },
-      Single: {
-        French: "single",
-        English: "single",
-        Russian: "сингл",
-        Ukrainian: "сингл",
-        Korean: "싱글",
-        Japanese: "シングル",
-        Spanish: "sencillo",
-      },
-    };
-
-    const traduccionesMedia = {
-      // programa o revista
-
-      Radio: {
-        French: "programme",
-        English: "program",
-        Russian: "программа",
-        Ukrainian: "програма",
-        Korean: "프로그램",
-        Japanese: "番組",
-        Spanish: "programa",
-      },
-      TV: {
-        French: "programme",
-        English: "program",
-        Russian: "программа",
-        Ukrainian: "програма",
-        Korean: "프로그램",
-        Japanese: "番組",
-        Spanish: "programa",
-      },
-      Magazine: {
-        French: "magazine",
-        English: "magazine",
-        Russian: "журнал",
-        Ukrainian: "журнал",
-        Korean: "잡지",
-        Japanese: "雑誌",
-        Spanish: "revista",
-      },
-    };
-
-    const mediaTraducido =
-      traduccionesMedia[item.media_type]?.[item.secondary_language] ||
-      item.media_type;
-
-    // Usar el valor correcto según si es campaña nueva o existente
-    const tipoLanzamientoActual =
-      showSelect.value && selectedCamp.value
-        ? selectedCamp.value.tipo_de_lanzamiento
-        : lancement.value;
-
-    const lanzTraducido =
-      tradLanzamiento[tipoLanzamientoActual]?.[item.secondary_language] ||
-      tipoLanzamientoActual;
-
-    const langue = item.secondary_language;
-    const elMedio = mediaTraducido; // programa o revista
-    const lanzamiento = lanzTraducido; // tipo de lanzamiento
-
-    // Usar el enlace correcto según si es campaña nueva o existente
-    const enlace =
-      showSelect.value && selectedCamp.value
-        ? selectedCamp.value.enlace
-        : lien.value;
-
-    function obtenerTradAsunto(lanzamiento, elMedio, enlace) {
-      return {
-        asunto: {
-          French: `Nouveau lancement de ${lanzamiento}`,
-          English: `New release of ${lanzamiento}`,
-          Russian: `Новый релиз ${lanzamiento}`,
-          Ukrainian: `Новий реліз ${lanzamiento}`,
-          Korean: `${lanzamiento}의 새 출시`,
-          Japanese: `${lanzamiento}の新リリース`,
-          Spanish: `Nuevo lanzamiento de ${lanzamiento}`,
-        },
-        mensaje: {
-          French: `<p>Bonjour, il y a quelque temps, j'ai découvert votre ${elMedio} et j'aime beaucoup.<br> Je vous informe que j'ai un projet et j'aimerais savoir si je pourrais avoir une opportunité.</p><p><a href="${enlace}">${enlace}</a></p><p>Merci pour votre temps.</p>`,
-          English: `<p>Hello, some time ago I discovered your ${elMedio} and I like it a lot.<br> I want to tell you I have a project and would like to know if I could have an opportunity.</p><p><a href="${enlace}">${enlace}</a></p><p>Thank you for your time.</p>`,
-          Russian: `<p>Здравствуйте, некоторое время назад я узнал о вашем ${elMedio} и мне очень понравилось.<br> Хочу сообщить, что у меня есть проект, и я хотел бы узнать, есть ли возможность.</p><p><a href="${enlace}">${enlace}</a></p><p>Спасибо за ваше время.</p>`,
-          Ukrainian: `<p>Привіт, деякий час тому я дізнався про ваш ${elMedio} і він мені дуже подобається.<br> Хочу повідомити, що у мене є проєкт, і я хотів би дізнатись, чи можу я мати можливість.</p><p><a href="${enlace}">${enlace}</a></p><p>Дякую за ваш час.</p>`,
-          Korean: `<p>안녕하세요, 얼마 전에 귀하의 ${elMedio}를 알게 되었고 매우 좋아합니다.<br> 프로젝트가 있어 기회가 있을지 알고 싶습니다.</p><p><a href="${enlace}">${enlace}</a></p><p>시간 내주셔서 감사합니다.</p>`,
-          Japanese: `<p>こんにちは、しばらく前にあなたの${elMedio}を知り、とても気に入っています.<br>プロジェクトがあり、チャンスがあるかどうか知りたいです。</p><p><a href="${enlace}">${enlace}</a></p><p>お時間をいただきありがとうございます。</p>`,
-          Spanish: `<p>Hola, hace un tiempo conocí su ${elMedio} y me gusta mucho.<br> Le comento que tengo un proyecto y me gustaría saber si podría tener alguna oportunidad<br></p><p><a href="${enlace}">${enlace}</a></p><p>gracias por su tiempo.</p>`,
-        },
-      };
-    }
-
-    const tradAsunto = obtenerTradAsunto(lanzamiento, elMedio, enlace);
-    const asuntoEnIdioma =
-      tradAsunto.asunto[item.secondary_language] || tradAsunto.asunto.English;
-
-    const mensajeEnIdioma =
-      tradAsunto.mensaje[item.secondary_language] || tradAsunto.mensaje.English;
-
-    return {
-      name: item.name,
-      idioma: item.secondary_language,
-      //	 email: item.test_email,
-      idContact: item.id,
-      tradAsunto: asuntoEnIdioma,
-      tradMensaje: mensajeEnIdioma,
-    };
-  });
-
-  const datosCampana = {
-    nombreDeCampana: campagne.value,
-    lanzamiento: lancement.value,
-    elLink: lien.value,
-    elGenero: genre.value,
-    nombreLanzamiento: nomLancement.value,
-    idFirma: signature.value,
-  };
-
-  console.log("estos son los datos de la campaña: ", datosCampana);
-
-  emailsEnviados.value = datosParaEnviar.map((item) => ({
-    //email: item.email,
-    name: item.name,
-    idioma: item.idioma,
-    idContact: item.idContact,
-  }));
-
-  console.log("emailsEnviados:", emailsEnviados.value);
-  console.log("datosParaEnviar:", datosParaEnviar);
-
-  // HACER ARRAY DE ENVIADOS
 
   const yaExiste = campEnviadas.value.find(
     (c) => c.id_email_account == signature.value && c.activa == 1
   );
 
-  let mensaje = "";
-
-  if (yaExiste && !showSelect.value) {
-    mensaje = `Crear esta campaña cerrará la campaña activa: "${yaExiste.nombre_lanzamiento}" de ${yaExiste.artista}.\n\n¿Seguro de enviar estos ${datosParaEnviar.length} correos?`;
-  } else {
-    mensaje = `¿Seguro de enviar estos ${datosParaEnviar.length} correos?`;
-  }
+  let mensaje =
+    yaExiste && !showSelect.value
+      ? `Crear esta campaña cerrará la campaña activa: "${yaExiste.nombre_lanzamiento}" de ${yaExiste.artista}.\n\n¿Seguro de enviar estos ${seleccionados.length} correos?`
+      : `¿Seguro de enviar estos ${seleccionados.length} correos?`;
 
   const confirmacion = await mostrarModalConfirmacion(mensaje);
-
-  if (!confirmacion) {
-    console.log("envio cancelado por el usuario");
-    return;
-  }
-
-  console.log("usuaio confirmo");
+  if (!confirmacion) return;
 
   mostrarOverlay("Enviando correos, por favor espera...");
+  await new Promise((r) => setTimeout(r, 100));
 
-  await new Promise((resolve) => setTimeout(resolve, 100));
+  const emailsEnviadosData = seleccionados.map((item) => ({
+    name: item.name,
+    idioma: item.secondary_language,
+    idContact: item.id,
+  }));
 
-  fetch("http://localhost/prom_system/api/enviar-emails.php", {
-    method: "POST",
-    headers: {
-      "Content-Type": "application/json",
-    },
-    body: JSON.stringify({
-      firma: signature.value,
-      correos: datosParaEnviar,
-    }),
-  })
-    .then((response) => response.json())
-    .then((data) => {
-      console.log("Correos enviados correctamente:", data.enviados);
+  try {
+    if (!showSelect.value) {
+      const datosAEnviar = {
+        envioDeCampana: {
+          nombreDeCampana: campagne.value,
+          lanzamiento: lancement.value,
+          elLink: lien.value,
+          elGenero: genre.value,
+          nombreLanzamiento: nomLancement.value,
+          idFirma: signature.value,
+        },
+        envioDeEmails: emailsEnviadosData,
+      };
 
-      mostrarToast(
-        `muy bien, se enviaron ${data.enviados.length} correos exitosamente`
-      );
+      await fetch("http://localhost/prom_system/api/insert-campanas.php", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(datosAEnviar),
+      });
+    } else {
+      const emailsParaEnviar = {
+        envioDeEmails: emailsEnviadosData,
+        idCampExistente: selectedCamp.value?.id,
+      };
 
-      limpiarYCargar(showSelect.value);
-    })
-    .catch((error) => {
-      console.error("Error al enviar correos:", error);
-      mostrarToastError(
-        "Hubo un error al enviar los correos. Inténtalo de nuevo."
-      );
-    })
-    .finally(() => {
-      ocultarOverlay();
-    });
+      await fetch("http://localhost/prom_system/api/insert-enviados.php", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(emailsParaEnviar),
+      });
+    }
 
-  // emailsEnviados.value = datosParaEnviar.map(item => item.email);
-
-  // esta cosa hacia que se seleccionen todos en usar campaña existente
-  // emailsEnviados.value = [...emailsEnviados.value, ...direccionesEnviadas];
-
-  console.log("array de direcciones enviadas: ", emailsEnviados.value);
-  console.log("se enviaron ", emailsEnviados.value.length, " emails");
-  // console.log('id de campaña seleccionada: ', selectedCamp.value.id);
-
-  // mostrarToast(`muy bien, se enviaron ${data.enviados.length} emails`);
-
-  // function limpiarHistorialEmails() {
-  //     emailsEnviados.value = [];
-  //     console.log('Historial de emails limpiado');
-  // }
-
-  // limpiarHistorialEmails() ;
-
-  // enviar a 2 tablas
-
-  const datosAEnviar = {
-    envioDeCampana: datosCampana,
-    envioDeEmails: emailsEnviados.value,
-  };
-
-  console.log("los datos a enviar son: ", datosAEnviar);
-
-  // console.
-
-  // console.log('showSelect value', showSelect.value);
-
-  if (!showSelect.value) {
-    fetch("http://localhost/prom_system/api/insert-campanas.php", {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify(datosAEnviar),
-    });
-
-    // .then(res => res.text())
-    // .then(data => {
-    // 	console.log('respuesta gigante si lanzamos data', data );
-    // });
-  } else {
-    const emailsParaEnviar = {
-      envioDeEmails: emailsEnviados.value,
-      idCampExistente: selectedCamp.value ? selectedCamp.value.id : null,
-    };
-
-    console.log(
-      "enviar a campaña existente (emails para envar):",
-      emailsParaEnviar
-    );
-
-    fetch("http://localhost/prom_system/api/insert-enviados.php", {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify(emailsParaEnviar),
-    })
-      .then((res) => res.text())
-      .then((data) => console.log("respuesta insert-enviados:", data));
+    mostrarToast(`Se enviaron ${seleccionados.length} correos exitosamente`);
+    limpiarYCargar(showSelect.value);
+  } catch (error) {
+    console.error("Error:", error);
+    mostrarToastError("Hubo un error al enviar los correos.");
+  } finally {
+    ocultarOverlay();
   }
 }
 
