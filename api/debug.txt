@@ -1,0 +1,7 @@
+Array
+(
+    [id] => 18
+    [tipo] => video
+    [idioma] => 
+    [url] => http://video.spirits-clip-official.mp888
+)
