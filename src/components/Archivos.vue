@@ -12,7 +12,10 @@
           <option selected disabled>Open this select menu</option>
           <option
             v-for="c in lasCampanas.filter(
-              (campana) => campana.activa === '1' || campana.activa === '0'
+              (campana) =>
+                campana.activa === '1' ||
+                campana.activa === '0' ||
+                campana.activa === '3'
             )"
             :key="c.id"
             :value="c.id"

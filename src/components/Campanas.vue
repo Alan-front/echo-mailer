@@ -50,7 +50,7 @@
                 <input
                   class="slideActive"
                   type="checkbox"
-                  :checked="c.activa == 1"
+                  :checked="c.activa != 0"
                   @change="actualizarActiva(c)"
                 />
                 <span class="slider"></span>
@@ -58,7 +58,11 @@
 
               <div class="status-dot active"></div>
               <span class="status-text">{{
-                c.activa == 1 ? "Activa" : "Inactiva"
+                c.activa == 0
+                  ? "Pausada"
+                  : c.activa == 3
+                  ? "En proceso"
+                  : "Activa"
               }}</span>
             </div>
           </td>
