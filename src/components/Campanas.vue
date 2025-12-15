@@ -583,32 +583,60 @@ onMounted(() => {
 });
 
 function actualizarActiva(campana) {
-  const nuevoEstado = campana.activa == 1 ? 0 : 1;
-
-  console.log("Enviando:", { id: campana.id, activa: nuevoEstado });
-
-  fetch("http://localhost/prom_system/api/actualizar_estado.php", {
-    method: "POST",
-    headers: {
-      "Content-Type": "application/json",
-    },
-    body: JSON.stringify({
-      id: campana.id,
-      activa: nuevoEstado,
-    }),
-  })
-    .then((res) => res.json())
-    .then((data) => {
-      if (data.success) {
-        campana.activa = nuevoEstado;
-      } else {
-        alert("Error al enviar estado");
-      }
+  // si esta activa (1 o 3) y quiere pausar -> estado 0
+  if (campana.activa != 0) {
+    fetch("http://localhost/prom_system/api/actualizar_estado.php", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ id: campana.id, activa: 0 }),
     })
+      .then((res) => res.json())
+      .then((data) => {
+        if (data.success) {
+          campana.activa = 0;
+        } else {
+          alert("Error al pausar campaña");
+        }
+      })
+      .catch((err) => {
+        console.error("Error:", err);
+        alert("Error de conexión");
+      });
+  }
+  // si está pausada (0) y quiere reactivar -> verificar estado
+  else {
+    fetch(
+      `http://localhost/prom_system/api/verificar_estado_campana.php?campana_id=${campana.id}`
+    )
+      .then((res) => res.json())
+      .then((data) => {
+        if (!data.success) {
+          alert("Error al verificar estado de campaña");
+          return;
+        }
 
-    .catch((err) => {
-      console.error("Error en actualización:", err);
-    });
+        const nuevoEstado = data.estado_calculado; // 1 o 3
+
+        //  actualizamos con el estado correcto
+        return fetch("http://localhost/prom_system/api/actualizar_estado.php", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ id: campana.id, activa: nuevoEstado }),
+        })
+          .then((res) => res.json())
+          .then((updateData) => {
+            if (updateData.success) {
+              campana.activa = nuevoEstado;
+            } else {
+              alert("Error al reactivar campaña");
+            }
+          });
+      })
+      .catch((err) => {
+        console.error("Error:", err);
+        alert("Error de conexión");
+      });
+  }
 }
 
 // onMounted(() => {
