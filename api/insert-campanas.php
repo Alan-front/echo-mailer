@@ -42,13 +42,13 @@ if (!$con) {
 	$id_firma = mysqli_real_escape_string($con, $datosCampana['idFirma']);
 
 
-	$cerrarSql ="UPDATE campañas SET activa = 2 WHERE id_email_account = '$id_firma' AND activa = 1";
+	$cerrarSql ="UPDATE campañas SET activa = 2 WHERE id_email_account = '$id_firma' AND activa IN (0,1,3) ";
 	mysqli_query($con, $cerrarSql);
 
 
 
-	$sql = "INSERT INTO campañas (artista, tipo_de_lanzamiento, nombre_lanzamiento, enlace, music_genre, id_email_account) 
-	VALUES ('$artista', '$tipo_lanzamiento', '$nombre_lanzamiento', '$enlace', '$genero', '$id_firma')";
+	$sql = "INSERT INTO campañas (artista, tipo_de_lanzamiento, nombre_lanzamiento, enlace, music_genre, id_email_account, activa) 
+	VALUES ('$artista', '$tipo_lanzamiento', '$nombre_lanzamiento', '$enlace', '$genero', '$id_firma', 3)";
 
 
 	if(mysqli_query($con, $sql)) {

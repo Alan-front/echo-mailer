@@ -15,7 +15,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'OPTIONS') {
 }
 
 // ============================================
-// RECIBIR ID DE CAMPAÑA
+// recibir el id de campaña
 // ============================================
 $data = json_decode(file_get_contents('php://input'), true);
 $idCampana = $_GET['id_campana'] ?? ($data['id_campana'] ?? null);
@@ -30,7 +30,7 @@ if (!$idCampana) {
 $connec = conectar();
 
 // ============================================
-// PASO 1: Obtener datos de la campaña
+// traer los datos de la campaña
 // ============================================
 $sqlCampana = "SELECT id, tipo_de_lanzamiento, enlace, activa, id_email_account 
                FROM campañas 
@@ -48,7 +48,7 @@ if (!$campana) {
 }
 
 // ============================================
-// PASO 2: Obtener contactos pendientes (estado = 0)
+// buscar contactos pendientes con estado = 0
 // ============================================
 $sql = "SELECT e.id, e.id_contacto, e.estado,
                c.secondary_language, c.media_type, c.test_email, c.name
@@ -77,7 +77,7 @@ if (empty($contactos)) {
 }
 
 // ============================================
-// PASO 3: Obtener credenciales SMTP
+// conseguir credenciales smtp
 // ============================================
 
 $sqlCred = "SELECT * FROM email_accounts WHERE id = ?";
@@ -94,7 +94,7 @@ if (!$credenciales) {
 }
 
 // ============================================
-// TRADUCCIONES
+// traducciones
 // ============================================
 
 $tradLanzamiento = [
@@ -182,7 +182,7 @@ function obtenerMensaje($idioma, $mediaTraducido, $enlace) {
 }
 
 // ============================================
-// PASO 4: Armar mensajes para cada contacto
+// armar mensajes para cada contacto
 // ============================================
 $mensajesParaEnviar = [];
 
@@ -190,14 +190,14 @@ foreach ($contactos as $contacto) {
     $idioma = $contacto['secondary_language'];
     $mediaType = $contacto['media_type'];
     
-    // trdcir tipo de lanzamiento
+    // traducir tipo de lanzamiento
     $lanzTraducido = $tradLanzamiento[$campana['tipo_de_lanzamiento']][$idioma] 
                      ?? $campana['tipo_de_lanzamiento'];
     
-    // trad media type
+    // traducir media type
     $mediaTraducido = $traduccionesMedia[$mediaType][$idioma] ?? $mediaType;
     
-    // armar asunto
+    // armar el asunto
     if ($idioma === 'Korean') {
         $asunto = $lanzTraducido . $tradAsunto[$idioma];
     } elseif ($idioma === 'Japanese') {
@@ -206,7 +206,7 @@ foreach ($contactos as $contacto) {
         $asunto = $tradAsunto[$idioma] . ' ' . $lanzTraducido;
     }
     
-    // rmar mensaje
+    // armar mensaje
     $mensaje = obtenerMensaje($idioma, $mediaTraducido, $campana['enlace']);
     
     $mensajesParaEnviar[] = [
@@ -219,7 +219,7 @@ foreach ($contactos as $contacto) {
 }
 
 // ============================================
-// configurar phpmailer para enviar
+// configurar phpmailer y empezar envio
 // ============================================
 
 $mail = new PHPMailer(true);
@@ -266,7 +266,7 @@ try {
                     'nombre' => $item['nombre']
                 ];
                 
-                // Actualizar estado a 1 (enviado)
+                // actualizar estado a enviado
                 $sqlUpdate = "UPDATE enviados SET estado = 1 WHERE id = ?";
                 $stmtUpdate = $connec->prepare($sqlUpdate);
                 $stmtUpdate->bind_param("i", $item['id_enviado']);
@@ -284,7 +284,7 @@ try {
             error_log("Error enviando a {$item['destinatario']}: " . $e->getMessage());
         }
         
-        // Aplicar pausas
+        // aplicar pausas
         if ($index + 1 < count($mensajesParaEnviar)) {
             if ($isGmail && ($index + 1) % $loteSize === 0) {
                 sleep(5);
@@ -302,7 +302,7 @@ try {
 $connec->close();
 
 // ============================================
-// resuesta JSON
+// devolver respuesta json
 // ============================================
 echo json_encode([
     'success' => true,

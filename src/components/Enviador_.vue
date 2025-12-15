@@ -615,7 +615,9 @@ const filtrarPorPaisExistente = ref("");
 // filtrando las inactivas
 const campActivasEnviadas = computed(() => {
   return (
-    campEnviadas.value?.filter((camp) => camp.activa == 1 && camp.sb != 0) || []
+    campEnviadas.value?.filter(
+      (camp) => (camp.activa == 1 || camp.activa == 3) && camp.sb != 0
+    ) || []
   );
 });
 

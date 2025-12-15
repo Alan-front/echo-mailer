@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Servidor: 127.0.0.1
--- Tiempo de generación: 13-12-2025 a las 03:45:14
+-- Tiempo de generación: 15-12-2025 a las 02:58:55
 -- Versión del servidor: 10.4.32-MariaDB
 -- Versión de PHP: 8.2.12
 
@@ -106,8 +106,44 @@ CREATE TABLE `enviados` (
   `idioma` varchar(10) DEFAULT NULL,
   `nombre_contacto` varchar(255) DEFAULT NULL,
   `fecha_envio` timestamp NOT NULL DEFAULT current_timestamp(),
-  `estado` int(11) DEFAULT NULL
+  `estado` int(11) NOT NULL DEFAULT 0 COMMENT '0=programado, 1=enviado'
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+--
+-- Disparadores `enviados`
+--
+DELIMITER $$
+CREATE TRIGGER `trg_campana_estado` AFTER INSERT ON `enviados` FOR EACH ROW UPDATE campañas c
+SET c.activa =
+CASE
+  WHEN EXISTS (
+    SELECT 1 FROM enviados e
+    WHERE e.campaña_id = NEW.campaña_id AND e.estado = 0
+  ) THEN 3
+  ELSE 1
+END
+WHERE c.id = NEW.campaña_id
+$$
+DELIMITER ;
+DELIMITER $$
+CREATE TRIGGER `trg_campana_estado_update` AFTER UPDATE ON `enviados` FOR EACH ROW BEGIN
+  DECLARE pendientes INT;
+
+  IF OLD.estado = 0 AND NEW.estado = 1 THEN
+    SELECT COUNT(*) INTO pendientes
+    FROM enviados
+    WHERE campaña_id = NEW.campaña_id
+      AND estado = 0;
+
+    IF pendientes = 0 THEN
+      UPDATE campañas
+      SET activa = 1
+      WHERE id = NEW.campaña_id;
+    END IF;
+  END IF;
+END
+$$
+DELIMITER ;
 
 -- --------------------------------------------------------
 
