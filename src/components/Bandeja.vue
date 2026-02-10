@@ -815,7 +815,7 @@ function ejecutarAnalisisIA() {
   mostrarOverlay("Procesando análisis IA...");
 
   fetch(
-    `http://localhost/prom_system/api/ia_update.php?id_campana=${idCampaña}`,
+    `http://localhost/prom_system/api/bandeja/ia_update.php?id_campana=${idCampaña}`,
   )
     .then((res) => {
       if (!res.ok) {
