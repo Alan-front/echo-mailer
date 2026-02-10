@@ -148,7 +148,7 @@
                   <option value="jp">Japonés</option>
                   <option value="uk">Ucraniano</option>
                   <option value="ru">Ruso</option>
-                  <option value="co">Coreano</option>
+                  <option value="ko">Coreano</option>
                 </select>
               </div>
 
@@ -228,7 +228,7 @@
                   <option value="jp">Japonés</option>
                   <option value="uk">Ucraniano</option>
                   <option value="ru">Ruso</option>
-                  <option value="co">Coreano</option>
+                  <option value="ko">Coreano</option>
                 </select>
               </div>
 
