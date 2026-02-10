@@ -616,7 +616,7 @@ const filtrarPorPaisExistente = ref("");
 const campActivasEnviadas = computed(() => {
   return (
     campEnviadas.value?.filter(
-      (camp) => (camp.activa == 1 || camp.activa == 3) && camp.sb != 0
+      (camp) => (camp.activa == 1 || camp.activa == 3) && camp.sb != 0,
     ) || []
   );
 });
@@ -628,7 +628,7 @@ console.log(
     activa: c.activa,
     sb: c.sb,
     tipo: typeof c.sb,
-  }))
+  })),
 );
 
 const mensajePreview = ref("");
@@ -687,7 +687,7 @@ const formularioCompleto = computed(() => {
 });
 
 onMounted(() => {
-  fetch("http://localhost/prom_system/api/get_email_accounts.php")
+  fetch("http://localhost/prom_system/api/enviador/get_email_accounts.php")
     .then((response) => {
       if (!response.ok) {
         throw new Error("Error al traer users: " + response.status);
@@ -710,7 +710,7 @@ watch(formularioCompleto, (nuevo) => {
 onMounted(() => {
   console.log(
     "formularioCompleto ahora esta completo:",
-    formularioCompleto.value
+    formularioCompleto.value,
   );
 });
 
@@ -865,7 +865,7 @@ const nombreCampanaExiste = computed(() => {
     (camp) =>
       camp.artista === campagne.value &&
       camp.tipo_de_lanzamiento === lancement.value &&
-      camp.nombre_lanzamiento === nomLancement.value
+      camp.nombre_lanzamiento === nomLancement.value,
   );
 });
 
@@ -972,7 +972,7 @@ function limpiarYCargar(nuevoValor) {
     console.log("Cambiando a usar campaña existente, recargando datos...");
 
     // volver a cargar campañas
-    fetch("http://localhost/prom_system/api/conex-campanas.php")
+    fetch("http://localhost/prom_system/api/config/conex-campanas.php")
       .then((response) => response.json())
       .then((json) => {
         console.log("campEnviadas recargadas:", json);
@@ -985,7 +985,7 @@ function limpiarYCargar(nuevoValor) {
       .catch((err) => console.error("Error al recargar campañas:", err));
 
     // volver a cargar emails enviados
-    fetch("http://localhost/prom_system/api/emails-ya-enviados.php")
+    fetch("http://localhost/prom_system/api/enviador/emails-ya-enviados.php")
       .then((response) => response.json())
       .then((json) => {
         emailsYaEnviados.value = json;
@@ -1076,7 +1076,7 @@ watch(deshabilitarChecks, (nuevoValor, valorAnterior) => {
 
 // obtener campañas para imprimir el select
 onMounted(() => {
-  fetch("http://localhost/prom_system/api/conex-campanas.php")
+  fetch("http://localhost/prom_system/api/config/conex-campanas.php")
     .then((response) => {
       if (!response.ok) {
         throw new Error("Error en la respuesta: " + response.status);
@@ -1094,7 +1094,7 @@ onMounted(() => {
 });
 
 onMounted(() => {
-  fetch("http://localhost/prom_system/api/media-contacts.php")
+  fetch("http://localhost/prom_system/api/enviador/media-contacts.php")
     .then((response) => response.json())
     .then((json) => {
       console.log(json);
@@ -1103,7 +1103,7 @@ onMounted(() => {
 });
 
 onMounted(() => {
-  fetch("http://localhost/prom_system/api/emails-ya-enviados.php")
+  fetch("http://localhost/prom_system/api/enviador/emails-ya-enviados.php")
     .then((response) => response.json())
     .then((json) => {
       emailsYaEnviados.value = json;
@@ -1115,13 +1115,13 @@ function fueEnviado(item) {
   if (!showSelect.value || !selectedCamp.value) return false;
 
   const encontrado = emailsYaEnviados.value.some(
-    (e) => e.id_contacto == item.id && e.campaña_id == selectedCamp.value.id
+    (e) => e.id_contacto == item.id && e.campaña_id == selectedCamp.value.id,
   );
 
   // Debug temporal para verificar
   console.log(
     `Verificando contacto ID ${item.id} para campaña ${selectedCamp.value.id}:`,
-    encontrado
+    encontrado,
   );
 
   return encontrado;
@@ -1250,11 +1250,11 @@ function mostrarToastError(mensaje) {
 
 async function enviarCorreos() {
   const seleccionados = datosFiltrados.value.filter((item) =>
-    checkeds.value.includes(item.id)
+    checkeds.value.includes(item.id),
   );
 
   const yaExiste = campEnviadas.value.find(
-    (c) => c.id_email_account == signature.value && c.activa == 1
+    (c) => c.id_email_account == signature.value && c.activa == 1,
   );
 
   let mensaje =
@@ -1288,22 +1288,28 @@ async function enviarCorreos() {
         envioDeEmails: emailsEnviadosData,
       };
 
-      await fetch("http://localhost/prom_system/api/insert-campanas.php", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(datosAEnviar),
-      });
+      await fetch(
+        "http://localhost/prom_system/api/enviador/insert-campanas.php",
+        {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(datosAEnviar),
+        },
+      );
     } else {
       const emailsParaEnviar = {
         envioDeEmails: emailsEnviadosData,
         idCampExistente: selectedCamp.value?.id,
       };
 
-      await fetch("http://localhost/prom_system/api/insert-enviados.php", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(emailsParaEnviar),
-      });
+      await fetch(
+        "http://localhost/prom_system/api/enviador/insert-enviados.php",
+        {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(emailsParaEnviar),
+        },
+      );
     }
 
     mostrarToast(`Se enviaron ${seleccionados.length} correos exitosamente`);
@@ -1417,7 +1423,9 @@ async function enviarCorreos() {
   outline: none;
   background-color: var(--dark-echo);
   border-color: var(--light-echo);
-  box-shadow: 0 0 0 2px var(--light-echo), 0 0 8px var(--medium-echo);
+  box-shadow:
+    0 0 0 2px var(--light-echo),
+    0 0 8px var(--medium-echo);
   color: var(--light-echo);
 }
 

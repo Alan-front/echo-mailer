@@ -15,7 +15,7 @@
               (campana) =>
                 campana.activa === '1' ||
                 campana.activa === '0' ||
-                campana.activa === '3'
+                campana.activa === '3',
             )"
             :key="c.id"
             :value="c.id"
@@ -405,7 +405,7 @@ function guardarEdicion() {
     url: urlEditar.value,
   };
 
-  fetch("http://localhost/prom_system/api/update-archivo.php", {
+  fetch("http://localhost/prom_system/api/archivos/update-archivo.php", {
     method: "POST",
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify(actualizado),
@@ -414,7 +414,7 @@ function guardarEdicion() {
     .then((data) => {
       obtenerArchivos();
       const modal = bootstrap.Modal.getInstance(
-        document.getElementById("modalEditar")
+        document.getElementById("modalEditar"),
       );
       modal.hide();
 
@@ -434,7 +434,7 @@ const idPendienteEliminar = ref(null);
 function abrirModalEliminar(id) {
   idPendienteEliminar.value = id;
   const modal = new bootstrap.Modal(
-    document.getElementById("modalConfirmarEliminar")
+    document.getElementById("modalConfirmarEliminar"),
   );
   modal.show();
 }
@@ -442,7 +442,7 @@ function abrirModalEliminar(id) {
 function confirmarEliminacion() {
   eliminarArchivo(idPendienteEliminar.value);
   const modal = bootstrap.Modal.getInstance(
-    document.getElementById("modalConfirmarEliminar")
+    document.getElementById("modalConfirmarEliminar"),
   );
   modal.hide();
 
@@ -450,7 +450,7 @@ function confirmarEliminacion() {
 }
 
 function eliminarArchivo(id) {
-  fetch("http://localhost/prom_system/api/delete-archivo.php", {
+  fetch("http://localhost/prom_system/api/archivos/delete-archivo.php", {
     method: "POST",
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify({ id }),
@@ -474,7 +474,7 @@ function eliminarArchivo(id) {
 }
 
 onMounted(() => {
-  fetch("http://localhost/prom_system/api/conex-campanas.php")
+  fetch("http://localhost/prom_system/api/config/conex-campanas.php")
     .then((response) => {
       if (!response.ok) {
         throw new Error("Error al traer campañas: " + response.status);
@@ -517,7 +517,7 @@ function construirObjeto() {
 
 /* ACTUALIZAR TABLA */
 function obtenerArchivos() {
-  fetch("http://localhost/prom_system/api/conex-archivos.php")
+  fetch("http://localhost/prom_system/api/archivos/conex-archivos.php")
     .then((r) => r.json())
     .then((json) => (losArchivos.value = json));
 }
@@ -526,7 +526,7 @@ function guardarArchivo() {
   const archivo = construirObjeto();
   if (!archivo) return;
 
-  fetch("http://localhost/prom_system/api/enviar-archivos.php", {
+  fetch("http://localhost/prom_system/api/archivos/enviar-archivos.php", {
     method: "POST",
     headers: {
       "Content-Type": "application/json",
@@ -534,7 +534,7 @@ function guardarArchivo() {
     body: JSON.stringify(archivo),
   })
     .then((res) =>
-      res.ok ? res.json() : Promise.reject("Error en l respuesta")
+      res.ok ? res.json() : Promise.reject("Error en l respuesta"),
     )
     .then((data) => {
       // console.log('Respuesta del backend:', data);
@@ -546,7 +546,7 @@ function guardarArchivo() {
 
       //  ejecutar esto si todo salió bien
       const modal = bootstrap.Modal.getInstance(
-        document.getElementById("modalArchivo")
+        document.getElementById("modalArchivo"),
       );
       modal.hide();
 
@@ -584,7 +584,7 @@ const objetoEditarCompleto = computed(() => {
 // TABLA DE ARCHIVOS
 
 onMounted(() => {
-  fetch("http://localhost/prom_system/api/conex-archivos.php")
+  fetch("http://localhost/prom_system/api/archivos/conex-archivos.php")
     .then((response) => {
       if (!response.ok) {
         throw new Error("Error al traer campañas: " + response.status);
@@ -602,7 +602,7 @@ onMounted(() => {
 
 const archivosFiltrados = computed(() => {
   return losArchivos.value.filter(
-    (a) => a["campaña_id"] == idSeleccionado.value
+    (a) => a["campaña_id"] == idSeleccionado.value,
   );
 });
 
@@ -718,7 +718,8 @@ select {
     var(--dark-echo) 65%,
     var(--medium-echo) 100%
   );
-  box-shadow: 4px 4px 18px rgba(55, 77, 95, 0.4),
+  box-shadow:
+    4px 4px 18px rgba(55, 77, 95, 0.4),
     inset 0 1px 0 rgba(203, 213, 223, 0.1);
   transition: all 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94);
   position: relative;
@@ -748,8 +749,10 @@ select {
     var(--medium-echo) 85%,
     var(--light-echo) 100%
   );
-  box-shadow: 6px 6px 25px rgba(55, 77, 95, 0.6),
-    inset 0 1px 0 rgba(203, 213, 223, 0.2), 0 0 20px rgba(111, 139, 162, 0.3);
+  box-shadow:
+    6px 6px 25px rgba(55, 77, 95, 0.6),
+    inset 0 1px 0 rgba(203, 213, 223, 0.2),
+    0 0 20px rgba(111, 139, 162, 0.3);
   /* transform: translateY(-2px); */
 }
 
@@ -785,8 +788,10 @@ label {
 }
 
 .los-archivos:hover {
-  box-shadow: 6px 6px 25px rgba(55, 77, 95, 0.6),
-    inset 0 1px 0 rgba(203, 213, 223, 0.2), 0 0 20px rgba(111, 139, 162, 0.3);
+  box-shadow:
+    6px 6px 25px rgba(55, 77, 95, 0.6),
+    inset 0 1px 0 rgba(203, 213, 223, 0.2),
+    0 0 20px rgba(111, 139, 162, 0.3);
   transform: translateY(-2px);
 }
 

@@ -61,8 +61,8 @@
                 c.activa == 0
                   ? "Pausada"
                   : c.activa == 3
-                  ? "En proceso"
-                  : "Activa"
+                    ? "En proceso"
+                    : "Activa"
               }}</span>
             </div>
           </td>
@@ -152,7 +152,9 @@ const cargandoEstadisticas = ref(false);
 function cargarEstadisticasCampaña(campaniaId) {
   cargandoEstadisticas.value = true;
 
-  fetch(`http://localhost/prom_system/api/chart.php?campana_id=${campaniaId}`)
+  fetch(
+    `http://localhost/prom_system/api/campanas/chart.php?campana_id=${campaniaId}`,
+  )
     .then((response) => response.json())
     .then((data) => {
       datosEstadisticas.value = data;
@@ -450,7 +452,7 @@ const respuestasPorDia = estadisticasSimuladas.respuestas.reduce(
     acc[fecha] = (acc[fecha] || 0) + 1;
     return acc;
   },
-  {}
+  {},
 );
 
 // Variables globales para los gráficos
@@ -518,7 +520,7 @@ function renderGraficos() {
 
   const fechas = Object.keys(datosEstadisticas.value.respuestas_por_fecha);
   const cantidades = Object.values(
-    datosEstadisticas.value.respuestas_por_fecha
+    datosEstadisticas.value.respuestas_por_fecha,
   );
 
   graficoBarrasInstance = new Chart(ctxBarras, {
@@ -566,7 +568,7 @@ function renderGraficos() {
 // fin de simulacion
 
 onMounted(() => {
-  fetch("http://localhost/prom_system/api/conex-campanas.php")
+  fetch("http://localhost/prom_system/api/config/conex-campanas.php")
     .then((response) => {
       if (!response.ok) {
         throw new Error("Error al traer campañas: " + response.status);
@@ -585,7 +587,7 @@ onMounted(() => {
 function actualizarActiva(campana) {
   // si esta activa (1 o 3) y quiere pausar -> estado 0
   if (campana.activa != 0) {
-    fetch("http://localhost/prom_system/api/actualizar_estado.php", {
+    fetch("http://localhost/prom_system/api/campanas/actualizar_estado.php", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ id: campana.id, activa: 0 }),
@@ -606,7 +608,7 @@ function actualizarActiva(campana) {
   // si está pausada (0) y quiere reactivar -> verificar estado
   else {
     fetch(
-      `http://localhost/prom_system/api/verificar_estado_campana.php?campana_id=${campana.id}`
+      `http://localhost/prom_system/api/campanas/verificar_estado_campana.php?campana_id=${campana.id}`,
     )
       .then((res) => res.json())
       .then((data) => {
@@ -618,11 +620,14 @@ function actualizarActiva(campana) {
         const nuevoEstado = data.estado_calculado; // 1 o 3
 
         //  actualizamos con el estado correcto
-        return fetch("http://localhost/prom_system/api/actualizar_estado.php", {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ id: campana.id, activa: nuevoEstado }),
-        })
+        return fetch(
+          "http://localhost/prom_system/api/campanas/actualizar_estado.php",
+          {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ id: campana.id, activa: nuevoEstado }),
+          },
+        )
           .then((res) => res.json())
           .then((updateData) => {
             if (updateData.success) {
@@ -786,7 +791,8 @@ a {
   backdrop-filter: blur(25px) brightness(1.1);
   border: 1px solid rgba(242, 252, 250, 0.2);
   border-radius: 25px;
-  box-shadow: 0 30px 60px rgba(0, 0, 0, 0.4),
+  box-shadow:
+    0 30px 60px rgba(0, 0, 0, 0.4),
     inset 0 1px 0 rgba(255, 255, 255, 0.2);
 }
 

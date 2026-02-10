@@ -593,7 +593,7 @@ const mensajeCompleto = computed(() => {
     enlaces.push(
       `<a href="${obtenerArchivos("audio").url}" target="_blank">${
         obtenerArchivos("audio").url
-      }</a>`
+      }</a>`,
     );
   }
 
@@ -601,7 +601,7 @@ const mensajeCompleto = computed(() => {
     enlaces.push(
       `<a href="${obtenerArchivos("video").url}" target="_blank">${
         obtenerArchivos("video").url
-      }</a>`
+      }</a>`,
     );
   }
 
@@ -609,7 +609,7 @@ const mensajeCompleto = computed(() => {
     enlaces.push(
       `<a href="${obtenerArchivos("ficha").url}" target="_blank">${
         obtenerArchivos("ficha").url
-      }</a>`
+      }</a>`,
     );
   }
 
@@ -626,7 +626,7 @@ const obtenerArchivos = (tipo) => {
   let archivosFiltrados = archivos.value.filter(
     (archivo) =>
       archivo.campaña_id === campaniaActiva.value.toString() &&
-      archivo.tipo === tipo
+      archivo.tipo === tipo,
   );
 
   if (tipo === "ficha" && mensajeSeleccionado.value.idioma) {
@@ -634,7 +634,7 @@ const obtenerArchivos = (tipo) => {
       idiomaMap[mensajeSeleccionado.value.idioma] ||
       mensajeSeleccionado.value.idioma;
     archivosFiltrados = archivosFiltrados.filter(
-      (archivo) => archivo.idioma === idiomaCodigo
+      (archivo) => archivo.idioma === idiomaCodigo,
     );
   }
 
@@ -647,7 +647,7 @@ const insertarArchivo = (tipo) => {
   const archivo = obtenerArchivos(tipo);
   if (enlacesActivos.value[tipo] && !archivo) {
     console.warn(
-      `No se encontró archivo de tipo ${tipo} para esta campaña/idioma`
+      `No se encontró archivo de tipo ${tipo} para esta campaña/idioma`,
     );
     enlacesActivos.value[tipo] = false;
     archivosSeleccionados.value[tipo] = 0;
@@ -657,7 +657,7 @@ const insertarArchivo = (tipo) => {
   archivosSeleccionados.value[tipo] = enlacesActivos.value[tipo] ? 1 : 0;
 
   console.log(
-    `${tipo} ${enlacesActivos.value[tipo] ? "activado" : "desactivado"}`
+    `${tipo} ${enlacesActivos.value[tipo] ? "activado" : "desactivado"}`,
   );
   console.log("Objeto para DB:", archivosSeleccionados.value);
 };
@@ -696,7 +696,7 @@ watch(mensajeSeleccionado, (nuevoMensaje) => {
         idiomaMap[nuevoMensaje.idioma] || nuevoMensaje.idioma;
 
       const plantilla = respuestas_plantillas.value.find(
-        (p) => p.idioma === idiomaCodigo
+        (p) => p.idioma === idiomaCodigo,
       );
 
       if (plantilla) {
@@ -729,21 +729,21 @@ const archivos = ref([]);
 onMounted(() => {
   console.log("2do componente montado");
 
-  fetch("http://localhost/prom_system/api/conex-campanas.php")
+  fetch("http://localhost/prom_system/api/config/conex-campanas.php")
     .then((res) => res.json())
     .then((json) => {
       campañasEnviadas.value = json;
       console.log("campEnviadas cargadas:", json);
     });
 
-  fetch("http://localhost/prom_system/api/respuestas_plantillas.php")
+  fetch("http://localhost/prom_system/api/bandeja/respuestas_plantillas.php")
     .then((res) => res.json())
     .then((json) => {
       respuestas_plantillas.value = json;
       console.log("respuestas plantillas cargadas:", json);
     });
 
-  fetch("http://localhost/prom_system/api/conex-archivos.php")
+  fetch("http://localhost/prom_system/api/archivos/conex-archivos.php")
     .then((res) => res.json())
     .then((json) => {
       archivos.value = json;
@@ -768,11 +768,11 @@ function ejecutarReset() {
 
   // Cerrar el modal primero
   const modal = bootstrap.Modal.getInstance(
-    document.getElementById("resetear")
+    document.getElementById("resetear"),
   );
   modal.hide();
 
-  fetch("http://localhost/prom_system/api/reset_analisis.php", {
+  fetch("http://localhost/prom_system/api/bandeja/reset_analisis.php", {
     method: "POST",
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify({ id_campaña: idCampaña }),
@@ -815,7 +815,7 @@ function ejecutarAnalisisIA() {
   mostrarOverlay("Procesando análisis IA...");
 
   fetch(
-    `http://localhost/prom_system/api/ia_update.php?id_campana=${idCampaña}`
+    `http://localhost/prom_system/api/ia_update.php?id_campana=${idCampaña}`,
   )
     .then((res) => {
       if (!res.ok) {
@@ -862,7 +862,7 @@ function ejecutarRespuestas() {
 
   // Cerrar el modal primero
   const modal = bootstrap.Modal.getInstance(
-    document.getElementById("responderTodos")
+    document.getElementById("responderTodos"),
   );
   modal.hide();
 
@@ -870,7 +870,7 @@ function ejecutarRespuestas() {
   mostrarOverlay("Respondiendo emails...");
 
   fetch(
-    `http://localhost/prom_system/api/responder_campana.php?id_campana=${idCampaña}`
+    `http://localhost/prom_system/api/bandeja/responder_campana.php?id_campana=${idCampaña}`,
   )
     .then((res) => {
       if (!res.ok) throw new Error(`HTTP error! status: ${res.status}`);
@@ -884,7 +884,7 @@ function ejecutarRespuestas() {
         abrirBandeja(campaniaActiva.value);
       } else {
         mostrarToastError(
-          "Error: " + (data.message || "No se pudo responder la campaña")
+          "Error: " + (data.message || "No se pudo responder la campaña"),
         );
       }
     })
@@ -908,7 +908,7 @@ const abrirBandeja = (id) => {
 
   mensajesRecibidos.value = [];
 
-  fetch("http://localhost/prom_system/api/tabla_bandeja.php", {
+  fetch("http://localhost/prom_system/api/bandeja/tabla_bandeja.php", {
     method: "POST",
     headers: {
       "Content-Type": "application/json",
@@ -947,7 +947,7 @@ const abrirMensaje = (mensaje) => {
 const enviarRespuesta = () => {
   console.log("Enviando respuesta:", archivosSeleccionados.value);
 
-  fetch("http://localhost/prom_system/api/update_bandeja.php", {
+  fetch("http://localhost/prom_system/api/bandeja/update_bandeja.php", {
     method: "POST",
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify(archivosSeleccionados.value),
@@ -958,14 +958,14 @@ const enviarRespuesta = () => {
       if (data.ok) {
         mostrarToast("Respuesta programada correctamente ✓");
         const modal = bootstrap.Modal.getInstance(
-          document.getElementById("mensajeProg")
+          document.getElementById("mensajeProg"),
         );
         modal.hide();
         // Actualizar la bandeja para reflejar los cambios
         abrirBandeja(campaniaActiva.value);
       } else {
         mostrarToastError(
-          "Error: " + (data.error || "No se pudo programar la respuesta")
+          "Error: " + (data.error || "No se pudo programar la respuesta"),
         );
       }
     })
@@ -1020,7 +1020,9 @@ function mostrarToastError(mensaje) {
   background: var(--dark-echo) !important;
   border-left: 10px solid var(--medium-echo) !important;
   transform: translateY(-2px);
-  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2), 0 0 10px var(--medium-echo),
+  box-shadow:
+    0 4px 15px rgba(0, 0, 0, 0.2),
+    0 0 10px var(--medium-echo),
     inset 0 0 20px rgba(255, 255, 255, 0.1) !important;
 }
 
@@ -1038,7 +1040,9 @@ function mostrarToastError(mensaje) {
   background: var(--dark-echo) !important;
   transform: translateY(-2px);
   border-left: 10px solid var(--medium-echo) !important;
-  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.3), 0 0 15px var(--medium-echo),
+  box-shadow:
+    0 6px 20px rgba(0, 0, 0, 0.3),
+    0 0 15px var(--medium-echo),
     inset 0 0 25px rgba(255, 255, 255, 0.15) !important;
 }
 
@@ -1055,7 +1059,8 @@ function mostrarToastError(mensaje) {
 
 .card-btn:hover {
   background-position: right center;
-  box-shadow: inset 0 0 6px rgba(255, 255, 255, 0.06),
+  box-shadow:
+    inset 0 0 6px rgba(255, 255, 255, 0.06),
     0 2px 8px rgba(0, 0, 0, 0.15);
   border-left: 10px solid var(--medium-echo);
   transform: translateY(-1px);
@@ -1195,13 +1200,19 @@ p.card-text small.name-type {
   align-items: center;
   justify-content: center;
   gap: 25px;
-  box-shadow: 0 15px 35px rgba(0, 0, 0, 0.1), 0 5px 15px rgba(0, 0, 0, 0.08);
-  transition: transform 0.3s ease, box-shadow 0.3s ease;
+  box-shadow:
+    0 15px 35px rgba(0, 0, 0, 0.1),
+    0 5px 15px rgba(0, 0, 0, 0.08);
+  transition:
+    transform 0.3s ease,
+    box-shadow 0.3s ease;
 }
 
 .div-toggle:hover {
   transform: translateY(-2px);
-  box-shadow: 0 20px 40px rgba(0, 0, 0, 0.15), 0 8px 20px rgba(0, 0, 0, 0.1);
+  box-shadow:
+    0 20px 40px rgba(0, 0, 0, 0.15),
+    0 8px 20px rgba(0, 0, 0, 0.1);
 }
 
 /* Switch delgado y extenso */
@@ -1309,7 +1320,9 @@ p.card-text small.name-type {
   outline: none;
   background-color: var(--dark-echo);
   border-color: var(--light-echo);
-  box-shadow: 0 0 0 2px var(--light-echo), 0 0 10px var(--medium-echo);
+  box-shadow:
+    0 0 0 2px var(--light-echo),
+    0 0 10px var(--medium-echo);
   color: var(--light-echo);
 }
 
@@ -1347,7 +1360,8 @@ p.card-text small.name-type {
   background: #ffffff;
   border: 1px solid #dee2e6;
   border-radius: 8px;
-  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+  font-family:
+    -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
   line-height: 1.6;
 }
 
