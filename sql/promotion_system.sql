@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Servidor: 127.0.0.1
--- Tiempo de generación: 15-12-2025 a las 02:58:55
+-- Tiempo de generación: 10-02-2026 a las 05:14:08
 -- Versión del servidor: 10.4.32-MariaDB
 -- Versión de PHP: 8.2.12
 
@@ -72,6 +72,7 @@ CREATE TABLE `campañas` (
   `music_genre` enum('Pop','Rock','Jazz','World Music','Classical') NOT NULL,
   `fecha_creacion` datetime DEFAULT current_timestamp(),
   `activa` tinyint(1) DEFAULT 1,
+  `ultima_actualizacion_imap` datetime DEFAULT NULL,
   `id_email_account` int(11) NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 

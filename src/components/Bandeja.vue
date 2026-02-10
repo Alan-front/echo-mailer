@@ -4,9 +4,15 @@
   </div>
 
   <div class="menu-debug" :class="{ show: showDebugMenu }">
-    <button class="btn" @click="cargarEmails">
+    <button class="btn" @click="cargarEmails" :disabled="!campaniaActiva">
       <i class="fas fa-download"></i> Cargar emails
     </button>
+
+    <div v-if="campaniaActiva && ultimaActualizacion" class="ultima-act">
+      <i class="fas fa-clock"></i>
+      <span>{{ ultimaActualizacionFormato }}</span>
+    </div>
+
     <button class="btn" @click="iaUpdate()">
       <i class="fas fa-wand-magic-sparkles"></i> Análisis IA
     </button>
@@ -1003,6 +1009,8 @@ function mostrarToastError(mensaje) {
 
   toast.show();
 }
+
+// actualiozar bandeja seleccionada
 </script>
 
 <style scoped>
@@ -1420,5 +1428,21 @@ p.card-text small.name-type {
   position: relative;
   top: 50%;
   transform: translateY(-50%);
+}
+
+/* boton cargar */
+.ultima-act {
+  font-size: 0.7rem;
+  color: var(--medium-echo);
+  margin-top: 4px;
+  margin-left: 8px;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  opacity: 0.8;
+}
+
+.ultima-act i {
+  font-size: 0.65rem;
 }
 </style>

@@ -1,7 +1,7 @@
 Array
 (
-    [id] => 18
-    [tipo] => video
-    [idioma] => 
-    [url] => http://video.spirits-clip-official.mp888
+    [id_respuesta] => 70
+    [audio] => 0
+    [video] => 0
+    [ficha] => 0
 )

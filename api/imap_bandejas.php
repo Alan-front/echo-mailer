@@ -12,6 +12,8 @@ header('Content-Type: application/json; charset=UTF-8');
 ob_start();
 ini_set('display_errors', 1);
 error_reporting(E_ALL);
+set_time_limit(300); 
+ini_set('default_socket_timeout', 60); 
 header("Content-Type: application/json; charset=UTF-8");
 
 require __DIR__ . '/vendor/autoload.php';
@@ -20,14 +22,14 @@ require 'conexion.php';
 $con = conectar();
 $con->set_charset("utf8mb4");
 
-// --- 1. Obtener todas las cuentas de email que tengan campañas activas ---
+// obtener cuentas con campañas activas
 $sqlCuentas = "
     SELECT ea.* 
     FROM email_accounts ea
     WHERE ea.id IN (
         SELECT DISTINCT id_email_account 
         FROM `campañas`
-        WHERE activa = 1
+        WHERE activa IN (1, 3)
     )
 ";
 $resCuentas = $con->query($sqlCuentas);
@@ -50,32 +52,90 @@ while ($cuenta = $resCuentas->fetch_assoc()) {
 
     $mailbox = "{" . $imap_host . ":" . $imap_port . "/imap/" . $imap_encryption . "/novalidate-cert}" . $imap_folder;
 
-    // --- 2. Calcular fecha mínima desde la campaña más antigua de esta cuenta ---
-    $stmtMinFecha = $con->prepare("SELECT MIN(fecha_creacion) AS min_fecha FROM `campañas` WHERE id_email_account = ? AND activa = 1");
+    // traer todos los contactos con campañas activas de esta cuenta una sola vez
+    $stmtContactos = $con->prepare("
+        SELECT DISTINCT 
+            mc.test_email,
+            mc.id,
+            mc.name,
+            mc.secondary_language,
+            c.id AS id_campana,
+            c.fecha_creacion
+        FROM enviados e
+        JOIN media_contacts mc ON e.id_contacto = mc.id
+        JOIN `campañas` c ON e.campaña_id = c.id
+        WHERE c.id_email_account = ? AND c.activa IN (1, 3)
+        ORDER BY c.fecha_creacion DESC
+    ");
+    $stmtContactos->bind_param("i", $cuenta['id']);
+    $stmtContactos->execute();
+    $resContactos = $stmtContactos->get_result();
+
+    // crear mapa de contactos por email para busqueda rapida
+    $contactosMap = [];
+    while ($row = $resContactos->fetch_assoc()) {
+        $email = strtolower($row['test_email']);
+        if (!isset($contactosMap[$email])) {
+            $contactosMap[$email] = [];
+        }
+        $contactosMap[$email][] = [
+            'id' => $row['id'],
+            'name' => $row['name'],
+            'idioma' => $row['secondary_language'],
+            'id_campana' => $row['id_campana'],
+            'fecha_creacion' => $row['fecha_creacion']
+        ];
+    }
+
+    // calcular fecha minima
+    $stmtMinFecha = $con->prepare("SELECT MIN(fecha_creacion) AS min_fecha FROM `campañas` WHERE id_email_account = ? AND activa IN (1, 3)");
     $stmtMinFecha->bind_param("i", $cuenta['id']);
     $stmtMinFecha->execute();
     $minFechaRow = $stmtMinFecha->get_result()->fetch_assoc();
     $fechaIMAP = date('j-M-Y', strtotime($minFechaRow['min_fecha']));
 
-    // --- 3. Conexión IMAP ---
-    $inbox = @imap_open($mailbox, $imap_user, $imap_password);
+    // conectar imap
+    $inbox = imap_open($mailbox, $imap_user, $imap_password);
     if (!$inbox) {
+        error_log("Error IMAP cuenta {$cuenta['id']}: " . imap_last_error());
         continue;
     }
 
-    // --- 4. Buscar emails desde la fecha más antigua ---
+    // buscar emails desde fecha
     $emails = imap_search($inbox, 'SINCE "' . $fechaIMAP . '"');
     if (!$emails) {
         imap_close($inbox);
         continue;
     }
 
+
+
+
+// LIMITAR A 15 MAS RECIENTES
+rsort($emails); // ordenar descendente (más recientes primero)
+$emails = array_slice($emails, 0, 15);
+
     foreach ($emails as $email_number) {
         $overview = imap_fetch_overview($inbox, $email_number, 0);
-        $rawMessage = imap_fetchbody($inbox, $email_number, 1);
+        
+        // extraer remitente
+        $remitente = isset($overview[0]->from) ? $overview[0]->from : '';
+        $emailRemitente = $remitente;
+        if (preg_match('/<(.+)>/', $remitente, $matches)) {
+            $emailRemitente = $matches[1];
+        }
+        $emailRemitente = strtolower(trim($emailRemitente));
 
+        // verificar si esta en el mapa
+        if (!isset($contactosMap[$emailRemitente])) {
+            continue;
+        }
+
+        // ahora si leer el mensaje
+        $rawMessage = imap_fetchbody($inbox, $email_number, 1);
         $message = limpiarMensaje(decodificarMensaje($rawMessage));
 
+        // extraer asunto
         $asunto = isset($overview[0]->subject) ? $overview[0]->subject : '';
         $asuntoDecodificado = imap_mime_header_decode($asunto);
         $asunto = '';
@@ -83,64 +143,42 @@ while ($cuenta = $resCuentas->fetch_assoc()) {
             $asunto .= $elemento->text;
         }
 
-        $remitente = isset($overview[0]->from) ? $overview[0]->from : '';
+        // extraer fecha
         $fecha_email = isset($overview[0]->date) ? $overview[0]->date : '';
-        $fechaEmailIMAP = date('j-M-Y', strtotime($fecha_email));
         $fechaEmailFull = date('Y-m-d H:i:s', strtotime($fecha_email));
 
-        $emailRemitente = $remitente;
-        if (preg_match('/<(.+)>/', $remitente, $matches)) {
-            $emailRemitente = $matches[1];
+        // buscar campaña correcta para este contacto
+        $campanasContacto = $contactosMap[$emailRemitente];
+        $idCampanaAsignada = null;
+        $contactoData = null;
+
+        foreach ($campanasContacto as $camp) {
+            if (strtotime($camp['fecha_creacion']) <= strtotime($fechaEmailFull)) {
+                $idCampanaAsignada = $camp['id_campana'];
+                $contactoData = $camp;
+                break;
+            }
         }
 
-        // --- 5. Buscar contacto ---
-        $stmt = $con->prepare("SELECT id, name, secondary_language FROM media_contacts WHERE test_email = ?");
-        $stmt->bind_param("s", $emailRemitente);
-        $stmt->execute();
-        $contacto = $stmt->get_result()->fetch_assoc();
-
-        $idContacto = $contacto ? $contacto['id'] : null;
-        $nameContact = $contacto ? $contacto['name'] : null;
-        $idioma = $contacto ? $contacto['secondary_language'] : null;
-
-        if ($idContacto !== null) {
-            // --- 6. Buscar TODAS las campañas activas de este contacto en esta cuenta ---
-            $stmtCamp = $con->prepare("
-                SELECT c.id AS id_campana, c.fecha_creacion
-                FROM enviados e
-                JOIN `campañas` c ON e.campaña_id = c.id
-                WHERE e.id_contacto = ? AND c.id_email_account = ? AND c.activa = 1
-                ORDER BY c.fecha_creacion DESC
-            ");
-            $stmtCamp->bind_param("ii", $idContacto, $cuenta['id']);
-            $stmtCamp->execute();
-            $resCamp = $stmtCamp->get_result();
-
-            $idCampanaAsignada = null;
-            while ($rowCamp = $resCamp->fetch_assoc()) {
-                if (strtotime($rowCamp['fecha_creacion']) <= strtotime($fechaEmailFull)) {
-                    $idCampanaAsignada = $rowCamp['id_campana'];
-                    break;
-                }
-            }
-
-            if ($idCampanaAsignada !== null) {
-                $resultado[] = [
-                    'nombre'      => $nameContact,
-                    'asunto'      => $asunto,
-                    'idioma'      => $idioma,
-                    'fecha'       => $fechaEmailFull,
-                    'mensaje'     => $message,
-                    'id_contacto' => $idContacto,
-                    'id_campana'  => $idCampanaAsignada
-                ];
-            }
+        if ($idCampanaAsignada !== null) {
+            $resultado[] = [
+                'nombre'      => $contactoData['name'],
+                'asunto'      => $asunto,
+                'idioma'      => $contactoData['idioma'],
+                'fecha'       => $fechaEmailFull,
+                'mensaje'     => $message,
+                'id_contacto' => $contactoData['id'],
+                'id_campana'  => $idCampanaAsignada
+            ];
         }
     }
-    imap_close($inbox);
+    
+    imap_close($inbox, CL_EXPUNGE);
+imap_errors(); // limpiar buffer de errores
+imap_alerts(); // limpiar alertas
 }
 
-// --- 7. Insertar en la tabla bandejas_campaña evitando duplicados ---
+// insertar en bandejas_campaña evitando duplicados
 foreach ($resultado as $m) {
     $stmtCheck = $con->prepare("
         SELECT id 
@@ -153,7 +191,7 @@ foreach ($resultado as $m) {
     $exists = $stmtCheck->get_result()->fetch_assoc();
 
     if (!$exists) {
-        // Contar cuántos emails ya tiene este contacto en esta campaña para calcular replica
+        // contar emails existentes para calcular replica
         $stmtCount = $con->prepare("
             SELECT COUNT(*) as total 
             FROM bandejas_campaña 
@@ -165,7 +203,7 @@ foreach ($resultado as $m) {
         $replicaValue = $countResult['total'];
         $estadoValue = ($replicaValue > 0) ? 2 : NULL;
 
-        // Insertar nuevo registro
+        // insertar nuevo registro
         $stmtInsert = $con->prepare("
             INSERT INTO bandejas_campaña 
             (id_campaña, id_contacto, nombre, asunto, idioma, fecha, mensaje, replica, estado, inc_audio, inc_video, inc_ficha) 
@@ -188,10 +226,14 @@ foreach ($resultado as $m) {
 }
 
 echo json_encode($resultado, JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE);
+
+
+@imap_errors();
+@imap_alerts();
+
 exit;
 
 
-// --- Funciones auxiliares ---
 function decodificarMensaje($rawMessage) {
     $decoded = quoted_printable_decode($rawMessage);
     if (preg_match('/^[A-Za-z0-9+\/=\s]+$/', trim($rawMessage))) {
