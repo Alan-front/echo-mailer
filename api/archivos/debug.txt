@@ -1,0 +1,7 @@
+Array
+(
+    [id] => 54
+    [tipo] => ficha
+    [idioma] => co
+    [url] => cajita/kr
+)

@@ -54,11 +54,41 @@
         <!-- filtros fijos -->
         <div class="div-filtros">
           <div class="d-flex gap-1 align-items-center">
-            <button class="btn btn-echo btn-bande">Todos</button>
-            <button class="btn btn-echo">Revisión</button>
-            <button class="btn btn-echo">Programados</button>
-            <button class="btn btn-echo">Respondidos</button>
-
+            <button
+              class="btn btn-echo"
+              :class="{ 'btn-bande': filtroActivo === 'todos' }"
+              @click="filtroActivo = 'todos'"
+            >
+              Todos
+            </button>
+            <button
+              class="btn btn-echo"
+              :class="{ 'btn-bande': filtroActivo === 'revision' }"
+              @click="filtroActivo = 'revision'"
+            >
+              Revisión
+            </button>
+            <button
+              class="btn btn-echo"
+              :class="{ 'btn-bande': filtroActivo === 'programados' }"
+              @click="filtroActivo = 'programados'"
+            >
+              Programados
+            </button>
+            <button
+              class="btn btn-echo"
+              :class="{ 'btn-bande': filtroActivo === 'respondidos' }"
+              @click="filtroActivo = 'respondidos'"
+            >
+              Respondidos
+            </button>
+            <button
+              class="btn btn-echo"
+              :class="{ 'btn-bande': filtroActivo === 'pendientes' }"
+              @click="filtroActivo = 'pendientes'"
+            >
+              Pendientes
+            </button>
             <div class="ms-auto">
               <input
                 type="text"
@@ -79,8 +109,8 @@
             <!-- mostrar emails -->
             <div v-else class="list-group list-group-flush scroll-echo">
               <div
-                v-for="mensaje in mensajesRecibidos"
-                :key="mensaje.id_contacto"
+                v-for="mensaje in mensajesFiltrados"
+                :key="mensaje.id"
                 class="list-group-item d-flex justify-content-between align-items-start py-3 card-message"
               >
                 <div
@@ -545,6 +575,49 @@ const mensajeSeleccionado = ref(null);
 // Estados para el overlay
 const mostrandoOverlay = ref(false);
 const textoOverlay = ref("");
+
+const filtroActivo = ref("todos");
+
+// Computed para filtrar mensajes según el estado
+const mensajesFiltrados = computed(() => {
+  console.log("🔍 Filtro activo:", filtroActivo.value);
+  console.log("📧 Total mensajes:", mensajesRecibidos.value.length);
+  console.log(
+    "📊 Estados de mensajes:",
+    mensajesRecibidos.value.map((m) => ({
+      nombre: m.nombre,
+      estado: m.estado,
+      tipo: typeof m.estado,
+    })),
+  );
+
+  if (filtroActivo.value === "todos") {
+    console.log("✅ Mostrando todos");
+    return mensajesRecibidos.value;
+  }
+  if (filtroActivo.value === "revision") {
+    const filtrados = mensajesRecibidos.value.filter((m) => m.estado === 2);
+    console.log("🔎 Filtrados revision (estado === 2):", filtrados.length);
+    return filtrados;
+  }
+  if (filtroActivo.value === "programados") {
+    const filtrados = mensajesRecibidos.value.filter((m) => m.estado === 0);
+    console.log("⏰ Filtrados programados (estado === 0):", filtrados.length);
+    return filtrados;
+  }
+  if (filtroActivo.value === "respondidos") {
+    const filtrados = mensajesRecibidos.value.filter((m) => m.estado === 1);
+    console.log("✉️ Filtrados respondidos (estado === 1):", filtrados.length);
+    return filtrados;
+  }
+  if (filtroActivo.value === "pendientes") {
+    const filtrados = mensajesRecibidos.value.filter((m) => m.estado === null);
+    console.log("⏳ Filtrados pendientes (estado === null):", filtrados.length);
+    return filtrados;
+  }
+  console.log("⚠️ Sin filtro aplicado");
+  return mensajesRecibidos.value;
+});
 
 // Funciones helper
 const mostrarOverlay = (texto = "Procesando...") => {
