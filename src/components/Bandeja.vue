@@ -1532,4 +1532,40 @@ p.card-text small.name-type {
 .ultima-act i {
   font-size: 0.65rem;
 }
+
+/* buttons filtrar */
+
+.btn-echo.btn-bande {
+  font-weight: 600;
+}
+
+/* Todos - sin color especial */
+.btn-echo:nth-child(1).btn-bande {
+  background: var(--medium-echo);
+  color: var(--bright-echo);
+}
+
+/* Revisión - amarillo como el badge */
+.btn-echo:nth-child(2).btn-bande {
+  background: var(--cta-echo);
+  color: var(--light-echo);
+}
+
+/* Programados - verde como el badge */
+.btn-echo:nth-child(3).btn-bande {
+  background: var(--confirm-echo);
+  color: var(--light-echo);
+}
+
+/* Respondidos - gris como el badge */
+.btn-echo:nth-child(4).btn-bande {
+  background: var(--medium-echo);
+  color: var(--bright-echo);
+}
+
+/* Pedientes - amarillo patito como el badge */
+.btn-echo:nth-child(5).btn-bande {
+  background: var(--alert-echo);
+  color: var(--dark-echo);
+}
 </style>
