@@ -800,6 +800,7 @@ label {
   overflow: hidden;
   box-shadow: 2px -4px 12px var(--dark-echo);
   max-width: 100%;
+  min-height: 50vh !important;
 }
 
 .los-archivos label {
