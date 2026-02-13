@@ -148,17 +148,10 @@
       </div>
 
       <div class="mb-3 datos-camp" v-else>
-        <div class="row camp-exist">
-          <div class="col-md-6 mb-3 dato-exis">
-            <label for="campagneSelect" class="form-label subti"
-              >Elegir campaña existente</label
-            >
-
-            <select
-              v-model="campagne"
-              class="form-select"
-              aria-label="Default select example"
-            >
+        <!-- Fila 1 -->
+        <div class="row g-2 align-items-center mb-2">
+          <div class="col-md-5">
+            <select v-model="campagne" class="form-select form-select-sm">
               <option value="" disabled selected>Selecciona una campaña</option>
               <option
                 v-for="camp in campActivasEnviadas"
@@ -170,77 +163,59 @@
             </select>
           </div>
 
-          <div class="mb-4 data-camp">
-            <p>
-              <span class="campo-nombre">Artista:</span><br />
-              <span class="campo-valor">{{ selectedCamp?.artista || "" }}</span>
-            </p>
-          </div>
-
-          <div class="mb-4 data-camp">
-            <p>
-              <span class="campo-nombre">Lien:</span><br />
-              <span v-if="selectedCamp?.enlace" class="campo-valor">
-                <a
-                  class="link-camp"
-                  :href="selectedCamp.enlace"
-                  target="_blank"
-                  rel="noopener"
-                  >{{ selectedCamp.enlace }}</a
-                >
-              </span>
-            </p>
-          </div>
-
-          <div class="mb-4 data-camp">
-            <p>
-              <span class="campo-nombre">Genre:</span><br />
-              <span class="campo-valor">{{
-                selectedCamp?.music_genre || ""
-              }}</span>
-            </p>
-          </div>
-
-          <div class="col-md-6 mb-3">
-            <label for="signatureInput" class="form-label subti">Pays</label>
+          <div class="col-md-4">
             <input
               v-model="filtrarPorPaisExistente"
               type="text"
-              class="form-control"
-              placeholder="Choisir un pays"
+              class="form-control form-control-sm"
+              placeholder="Pays"
             />
           </div>
-        </div>
 
-        <br />
-
-        <!-- div de boton de filtrar toggle -->
-
-        <div v-if="lancement && mostrarTabla" class="text-end ms-auto">
-          <div class="toggle-wrapper">
-            <label class="toggle-switch">
-              <span
-                class="toggle-label"
-                :class="{ 'active-green': !filtroYaEnviados }"
-                >All</span
-              >
-
-              <input type="checkbox" v-model="filtroYaEnviados" />
-              <span
-                class="slider"
-                :class="filtroYaEnviados ? 'red' : 'green'"
-              ></span>
-
-              <span
-                class="toggle-label"
-                :class="{ 'active-red': filtroYaEnviados }"
-                >No enviados</span
-              >
-            </label>
+          <div
+            class="col-md-3 d-flex justify-content-end"
+            v-if="lancement && mostrarTabla"
+          >
+            <div class="toggle-wrapper">
+              <label class="toggle-switch">
+                <span
+                  class="toggle-label"
+                  :class="{ 'active-green': !filtroYaEnviados }"
+                  >All</span
+                >
+                <input type="checkbox" v-model="filtroYaEnviados" />
+                <span
+                  class="slider"
+                  :class="filtroYaEnviados ? 'red' : 'green'"
+                ></span>
+                <span
+                  class="toggle-label"
+                  :class="{ 'active-red': filtroYaEnviados }"
+                  >No enviados</span
+                >
+              </label>
+            </div>
           </div>
         </div>
 
-        <!-- fin del toggle -->
+        <!-- Fila 2 -->
+        <div class="camp-info-card w-100" v-if="selectedCamp">
+          <span><b>Artista:</b> {{ selectedCamp.artista }}</span>
+          <span class="sep">|</span>
+          <span><b>Genre:</b> {{ selectedCamp.music_genre }}</span>
+          <span class="sep">|</span>
+          <span
+            ><b>Lien:</b>
+            <a
+              :href="selectedCamp.enlace"
+              target="_blank"
+              rel="noopener"
+              class="link-camp"
+            >
+              {{ selectedCamp.enlace }}
+            </a>
+          </span>
+        </div>
       </div>
 
       <div class="btn-group" role="group" aria-label="...">
@@ -1452,48 +1427,6 @@ async function enviarCorreos() {
   background-color: rgba(8, 47, 56, 0.322);
 }
 
-/* mantenimiento */
-/* 
-
-:global(body.modal-open) {
-  padding-right: 0 !important;
-}
-
-
-:global(.modal-open .container),
-:global(.modal-open .miContenedor) {
-  padding-right: 0 !important;
-  margin-right: auto !important;
-}
-
-
-:global(.modal-open) {
-  overflow: hidden;
-  padding-right: 0 !important;
-}
-
-
-:global(.modal-backdrop) ~ * .container,
-:global(.modal-backdrop) ~ * .miContenedor {
-  transition: none !important;
-  padding-right: 0 !important;
-} */
-
-/* fin del problema */
-
-/* .modal-content {
-  background-color: var(--dark-echo);
-  color: var(--light-echo);
-  border-radius: 12px;
-  border: 1px solid var(--medium-echo);
-}
-
-.modal-body{
-  background-color: white;
-  color: black;
-  padding: 20px;
-} */
-
 .modal-footer,
 .modal-header {
   background-color: var(--dark-echo);
@@ -1532,5 +1465,28 @@ async function enviarCorreos() {
 
 .btn-close:focus {
   box-shadow: none; /* quita el borde azul al hacer clic */
+}
+
+/* card  */
+
+.datos-camp {
+}
+
+.camp-exist {
+  border: 2px solid red;
+}
+.camp-info-card {
+  background-color: var(--medium-echo);
+  border-radius: 10px;
+  padding: 8px 16px;
+  font-size: 0.85rem;
+  color: var(--bright-echo);
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+.sep {
+  opacity: 0.35;
 }
 </style>
