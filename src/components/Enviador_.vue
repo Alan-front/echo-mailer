@@ -244,7 +244,7 @@
           :disabled="!showPreview || deshabilitarChecks"
           @click="enviarCorreos"
         >
-          <i class="fa fa-paper-plane"></i> Enviar Seleccionados
+          <i class="fa-solid fa-envelopes-bulk"></i> Agregar Seleccionados
         </button>
       </div>
     </form>
