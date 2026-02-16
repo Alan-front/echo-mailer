@@ -205,7 +205,7 @@
           <span><b>Genre:</b> {{ selectedCamp.music_genre }}</span>
           <span class="sep">|</span>
           <span
-            ><b>Lien:</b>
+            ><b>Lien: </b>
             <a
               :href="selectedCamp.enlace"
               target="_blank"
@@ -244,7 +244,7 @@
           :disabled="!showPreview || deshabilitarChecks"
           @click="enviarCorreos"
         >
-          <i class="fa fa-paper-plane"></i> Enviar Seleccionados
+          <i class="fa-solid fa-envelopes-bulk"></i> Enviar Seleccionados
         </button>
       </div>
     </form>
@@ -1488,5 +1488,9 @@ async function enviarCorreos() {
 }
 .sep {
   opacity: 0.35;
+}
+
+.link-camp {
+  color: var(--bright-echo);
 }
 </style>
