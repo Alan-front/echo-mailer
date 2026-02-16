@@ -244,7 +244,7 @@
           :disabled="!showPreview || deshabilitarChecks"
           @click="enviarCorreos"
         >
-          <i class="fa-solid fa-envelopes-bulk"></i> Enviar Seleccionados
+          <i class="fa-solid fa-envelopes-bulk"></i> Agregar Seleccionados
         </button>
       </div>
     </form>
@@ -350,7 +350,7 @@
           </div>
           <div class="modal-body">
             <p id="modalMessage">
-              ¿Estás seguro que deseas enviar estos correos?
+              ¿Estás seguro que deseas agregar estos correos?
             </p>
           </div>
           <div class="modal-footer">
@@ -1234,13 +1234,13 @@ async function enviarCorreos() {
 
   let mensaje =
     yaExiste && !showSelect.value
-      ? `Crear esta campaña cerrará la campaña activa: "${yaExiste.nombre_lanzamiento}" de ${yaExiste.artista}.\n\n¿Seguro de enviar estos ${seleccionados.length} correos?`
-      : `¿Seguro de enviar estos ${seleccionados.length} correos?`;
+      ? `Crear esta campaña cerrará la campaña activa: "${yaExiste.nombre_lanzamiento}" de ${yaExiste.artista}.\n\n¿Seguro de agregar estos ${seleccionados.length} correos?`
+      : `¿Seguro de agregar estos ${seleccionados.length} correos?`;
 
   const confirmacion = await mostrarModalConfirmacion(mensaje);
   if (!confirmacion) return;
 
-  mostrarOverlay("Enviando correos, por favor espera...");
+  mostrarOverlay("Agregando correos, por favor espera...");
   await new Promise((r) => setTimeout(r, 100));
 
   const emailsEnviadosData = seleccionados.map((item) => ({
@@ -1287,11 +1287,11 @@ async function enviarCorreos() {
       );
     }
 
-    mostrarToast(`Se enviaron ${seleccionados.length} correos exitosamente`);
+    mostrarToast(`Se agregaron ${seleccionados.length} correos exitosamente`);
     limpiarYCargar(showSelect.value);
   } catch (error) {
     console.error("Error:", error);
-    mostrarToastError("Hubo un error al enviar los correos.");
+    mostrarToastError("Hubo un error al agregar los correos.");
   } finally {
     ocultarOverlay();
   }
