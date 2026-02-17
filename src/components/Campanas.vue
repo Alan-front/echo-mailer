@@ -51,7 +51,7 @@
                   class="slideActive"
                   type="checkbox"
                   :checked="c.activa != 0"
-                  @change="actualizarActiva(c)"
+                  @click.prevent="modalConfirmarPausar(c)"
                 />
                 <span class="slider"></span>
               </label>
@@ -136,18 +136,70 @@
       </div>
     </div>
   </div>
+
+  <!-- modal confirmar pausar -->
+
+  <div
+    class="modal fade"
+    id="modalConfirmarPausar"
+    tabindex="-1"
+    aria-hidden="true"
+  >
+    <div class="modal-dialog modal-dialog-centered">
+      <div class="modal-content text-dark">
+        <div class="modal-header">
+          <h5 class="modal-title">Confirmar este cambio?</h5>
+          <button
+            type="button"
+            class="btn-close"
+            data-bs-dismiss="modal"
+          ></button>
+        </div>
+        <div class="modal-body mod-delete">
+          ¿Estás seguro de que deseas este cambio de estado?
+        </div>
+        <div class="form-actions d-flex justify-content-end">
+          <button class="btn-edark" data-bs-dismiss="modal">Cancelar</button>
+
+          <button class="btn-econf" @click="confirmarCambioEstado">
+            Cambiar
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
 </template>
 
 <script setup>
 import { ref, onMounted } from "vue";
 import { Chart } from "chart.js/auto";
 
+import "bootstrap/dist/js/bootstrap.bundle.min.js";
+
 function elAlert() {
-  alert("el putisimo alert");
+  alert("el a a a alert");
 }
 
 const datosEstadisticas = ref(null);
 const cargandoEstadisticas = ref(false);
+
+const idPendientePausar = ref(null);
+
+function modalConfirmarPausar(campana) {
+  idPendientePausar.value = campana;
+  const modal = new bootstrap.Modal(
+    document.getElementById("modalConfirmarPausar"),
+  );
+  modal.show();
+}
+
+function confirmarCambioEstado() {
+  actualizarActiva(idPendientePausar.value);
+  const modal = bootstrap.Modal.getInstance(
+    document.getElementById("modalConfirmarPausar"),
+  );
+  modal.hide();
+}
 
 function cargarEstadisticasCampaña(campaniaId) {
   cargandoEstadisticas.value = true;
@@ -857,6 +909,53 @@ a {
 
 .modal {
   padding-right: 0 !important;
+}
+
+#modalConfirmarPausar {
+  backdrop-filter: blur(2px) saturate(130%);
+  background-color: rgba(8, 47, 56, 0.322);
+}
+
+#modalConfirmarPausar {
+  padding-inline: 0;
+}
+
+#modalConfirmarPausar .form-actions {
+  padding-right: 0.5rem;
+}
+
+#modalConfirmarPausar .text-dark {
+  padding-bottom: 1rem;
+}
+
+.text-dark {
+  background-color: var(--dark-echo);
+}
+
+.mod-delete {
+  background-color: var(--light-echo);
+}
+
+.form-actions,
+.modal-footer {
+  margin-top: 1rem;
+}
+
+body.modal-open {
+  overflow-x: hidden !important;
+}
+
+body.modal-open {
+  overflow-x: hidden !important;
+}
+
+.form-actions,
+.modal-footer {
+  margin-top: 1rem;
+}
+
+.text-dark {
+  background-color: var(--dark-echo);
 }
 
 h2.card-title {

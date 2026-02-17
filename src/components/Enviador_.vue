@@ -205,7 +205,7 @@
           <span><b>Genre:</b> {{ selectedCamp.music_genre }}</span>
           <span class="sep">|</span>
           <span
-            ><b>Lien:</b>
+            ><b>Lien: </b>
             <a
               :href="selectedCamp.enlace"
               target="_blank"
@@ -244,7 +244,7 @@
           :disabled="!showPreview || deshabilitarChecks"
           @click="enviarCorreos"
         >
-          <i class="fa fa-paper-plane"></i> Enviar Seleccionados
+          <i class="fa-solid fa-envelopes-bulk"></i> Agregar Seleccionados
         </button>
       </div>
     </form>
@@ -299,7 +299,7 @@
                     :value="item.id"
                     v-model="checkeds"
                     :id="'checkbox-' + item.id"
-                    :disabled="deshabilitarChecks"
+                    :disabled="deshabilitarChecks || fueEnviado(item)"
                   />
                   <label
                     class="form-check-label"
@@ -315,13 +315,20 @@
               <td>{{ item.music_genre }}</td>
               <td>{{ item.secondary_language }}</td>
               <td v-if="showSelect">
-                <div
-                  v-if="fueEnviado(item)"
-                  style="color: green; text-align: center"
-                >
-                  ✓
+                <div v-if="fueEnviado(item)" style="text-align: center">
+                  <div
+                    v-if="fueEnviado(item).estado === '1'"
+                    style="color: var(--dark-echo)"
+                  >
+                    <i class="fa-solid fa-envelope-circle-check fa-lg"></i>
+                  </div>
+                  <div v-else style="color: var(--dark-echo)">
+                    <i class="fa-solid fa-bookmark fa-lg"></i>
+                  </div>
                 </div>
-                <div v-else style="color: #ccc; text-align: center">⭕</div>
+                <div v-else style="color: var(--dark-echo); text-align: center">
+                  <i class="fa-regular fa-circle fa-lg"></i>
+                </div>
               </td>
             </tr>
           </tbody>
@@ -350,7 +357,7 @@
           </div>
           <div class="modal-body">
             <p id="modalMessage">
-              ¿Estás seguro que deseas enviar estos correos?
+              ¿Estás seguro que deseas agregar estos correos?
             </p>
           </div>
           <div class="modal-footer">
@@ -1087,19 +1094,13 @@ onMounted(() => {
 });
 
 function fueEnviado(item) {
-  if (!showSelect.value || !selectedCamp.value) return false;
+  if (!showSelect.value || !selectedCamp.value) return null;
 
-  const encontrado = emailsYaEnviados.value.some(
+  const encontrado = emailsYaEnviados.value.find(
     (e) => e.id_contacto == item.id && e.campaña_id == selectedCamp.value.id,
   );
 
-  // Debug temporal para verificar
-  console.log(
-    `Verificando contacto ID ${item.id} para campaña ${selectedCamp.value.id}:`,
-    encontrado,
-  );
-
-  return encontrado;
+  return encontrado; // devuelve el objeto o undefined
 }
 
 const checkeds = ref([]);
@@ -1118,13 +1119,18 @@ function selectAllChecks(event) {
   if (marcado) {
     //   agrega todos los IDs visibles que no estén ya seleccionados
     const nuevos = datosFiltrados.value
+      .filter((item) => !fueEnviado(item))
       .map((item) => item.id)
       .filter((id) => !checkeds.value.includes(id));
     checkeds.value = [...checkeds.value, ...nuevos];
   } else {
     //elimina visibles ids
-    const visibles = datosFiltrados.value.map((item) => item.id);
-    checkeds.value = checkeds.value.filter((id) => !visibles.includes(id));
+    const visiblesNoBloqueados = datosFiltrados.value
+      .filter((item) => !fueEnviado(item))
+      .map((item) => item.id);
+    checkeds.value = checkeds.value.filter(
+      (id) => !visiblesNoBloqueados.includes(id),
+    );
   }
 
   // info en consola
@@ -1234,13 +1240,13 @@ async function enviarCorreos() {
 
   let mensaje =
     yaExiste && !showSelect.value
-      ? `Crear esta campaña cerrará la campaña activa: "${yaExiste.nombre_lanzamiento}" de ${yaExiste.artista}.\n\n¿Seguro de enviar estos ${seleccionados.length} correos?`
-      : `¿Seguro de enviar estos ${seleccionados.length} correos?`;
+      ? `Crear esta campaña cerrará la campaña activa: "${yaExiste.nombre_lanzamiento}" de ${yaExiste.artista}.\n\n¿Seguro de agregar estos ${seleccionados.length} correos?`
+      : `¿Seguro de agregar estos ${seleccionados.length} correos?`;
 
   const confirmacion = await mostrarModalConfirmacion(mensaje);
   if (!confirmacion) return;
 
-  mostrarOverlay("Enviando correos, por favor espera...");
+  mostrarOverlay("Agregando correos, por favor espera...");
   await new Promise((r) => setTimeout(r, 100));
 
   const emailsEnviadosData = seleccionados.map((item) => ({
@@ -1287,11 +1293,11 @@ async function enviarCorreos() {
       );
     }
 
-    mostrarToast(`Se enviaron ${seleccionados.length} correos exitosamente`);
+    mostrarToast(`Se agregaron ${seleccionados.length} correos exitosamente`);
     limpiarYCargar(showSelect.value);
   } catch (error) {
     console.error("Error:", error);
-    mostrarToastError("Hubo un error al enviar los correos.");
+    mostrarToastError("Hubo un error al agregar los correos.");
   } finally {
     ocultarOverlay();
   }
@@ -1488,5 +1494,9 @@ async function enviarCorreos() {
 }
 .sep {
   opacity: 0.35;
+}
+
+.link-camp {
+  color: var(--bright-echo);
 }
 </style>
