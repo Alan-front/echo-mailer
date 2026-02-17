@@ -253,6 +253,18 @@ while ($cuenta = $resCuentas->fetch_assoc()) {
     imap_close($inbox, CL_EXPUNGE);
     imap_errors();
     imap_alerts();
+
+    foreach ($campanasUnicas as $camp) {
+    $stmtUpdate = $con->prepare("
+        UPDATE `campañas`
+        SET ultima_actualizacion_imap = NOW()
+        WHERE id = ?
+    ");
+    $stmtUpdate->bind_param("i", $camp['id_campana']);
+    $stmtUpdate->execute();
+}
+
+
     
     // agregar campañas procesadas de esta cuenta
     foreach ($campanasUnicas as $campana) {

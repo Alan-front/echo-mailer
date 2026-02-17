@@ -40,8 +40,10 @@
                 <h5 class="card-title">{{ c.nombre_lanzamiento }}</h5>
                 <p class="card-text">
                   <small class="text-body-secondary name-type"
-                    >{{ c.artista }} - {{ c.tipo_de_lanzamiento }}</small
-                  >
+                    >{{ c.artista }} - {{ c.tipo_de_lanzamiento }}
+                    <br />
+                    Ult - Act {{ tiempoRelativo(c.ultima_actualizacion_imap) }}
+                  </small>
                 </p>
               </div>
             </div>

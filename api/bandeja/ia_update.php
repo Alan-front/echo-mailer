@@ -116,9 +116,9 @@ function inicializarTokens() {
         echo "Test Token " . ($index + 1) . ": ";
         if (testearTokenGroq($token)) {
             $tokens_funcionando[] = $index;
-            echo "✅ Funcionando\n";
+            echo "Funcionando\n";
         } else {
-            echo "❌ Error\n";
+            echo "Error\n";
         }
         // pequeña pausa entre tests
         usleep(500000); // 0.5 segundos
@@ -127,12 +127,12 @@ function inicializarTokens() {
     $total_funcionando = count($tokens_funcionando);
     
     if ($total_funcionando === 2) {
-        echo "✅ Modo: Alternancia normal (ambos tokens activos)\n";
+        echo "Modo: Alternancia normal (ambos tokens activos)\n";
     } elseif ($total_funcionando === 1) {
         $modo_respaldo = true;
-        echo "⚠️  Modo: Respaldo (1 token + regex alternado)\n";
+        echo " Modo: Respaldo (1 token + regex alternado)\n";
     } else {
-        echo "❌ Modo: Solo regex (ningún token funciona)\n";
+        echo "Modo: Solo regex (ningún token funciona)\n";
     }
     
     return $total_funcionando;
@@ -361,7 +361,7 @@ function analizarMensaje($mensaje) {
 
 
 if (!isset($_GET['id_campana']) || empty($_GET['id_campana'])) {
-    die("❌ Error: Debe proporcionar el parámetro 'id_campana' en la URL.\nEjemplo: ?id_campana=32\n");
+    die("Error: Debe proporcionar el parámetro 'id_campana' en la URL.\nEjemplo: ?id_campana=32\n");
 }
 
 $id_campana = intval($_GET['id_campana']);
@@ -384,12 +384,12 @@ try {
     $total_filas = $resultado->num_rows;
     
     if ($total_filas === 0) {
-        echo "📭 No se encontraron registros para la campaña $id_campana\n";
+        echo "No se encontraron registros para la campaña $id_campana\n";
         exit;
     }
     
-    echo "🚀 Procesando campaña $id_campana ($total_filas registros)...\n";
-    echo "📊 Tokens activos: $tokens_activos/2\n\n";
+    echo "Procesando campaña $id_campana ($total_filas registros)...\n";
+    echo "Tokens activos: $tokens_activos/2\n\n";
     
 
     $stmt_update = $con->prepare("UPDATE bandejas_campaña SET estado = ?, inc_audio = ?, inc_video = ?, inc_ficha = ? WHERE id = ?");
@@ -430,11 +430,11 @@ try {
             
            
             if ($contadores['procesados'] % 10 === 0) {
-                echo "📝 Procesando... {$contadores['procesados']}/$total_filas\n";
+                echo "Procesando... {$contadores['procesados']}/$total_filas\n";
             }
         } else {
             $contadores['errores']++;
-            echo "❌ Error actualizando registro ID $id: " . $stmt_update->error . "\n";
+            echo "Error actualizando registro ID $id: " . $stmt_update->error . "\n";
         }
         
     // actualizar contadores
@@ -467,28 +467,28 @@ try {
     }
     
     // mostrar resumen final
-    echo "\n✅ PROCESO COMPLETADO ✅\n";
+    echo "\n PROCESO COMPLETADO \n";
     echo "========================\n";
-    echo "📊 Total procesados: {$contadores['procesados']}\n";
-    echo "✅ Actualizados exitosamente: {$contadores['actualizados']}\n";
-    echo "❌ Errores: {$contadores['errores']}\n\n";
+    echo "Total procesados: {$contadores['procesados']}\n";
+    echo "Actualizados exitosamente: {$contadores['actualizados']}\n";
+    echo "Errores: {$contadores['errores']}\n\n";
     
-    echo "📈 ESTADÍSTICAS DE ANÁLISIS:\n";
+    echo "ESTADÍSTICAS DE ANÁLISIS:\n";
     echo "----------------------------\n";
-    echo "🟢 Estado 0 (Enviar archivos): {$contadores['estado'][0]}\n";
-    echo "🟡 Estado 1 (Pendientes): {$contadores['estado'][1]}\n";
-    echo "🔴 Estado 2 (Mensajes raros): {$contadores['estado'][2]}\n\n";
+    echo "Estado 0 (Enviar archivos): {$contadores['estado'][0]}\n";
+    echo "Estado 1 (Pendientes): {$contadores['estado'][1]}\n";
+    echo "Estado 2 (Mensajes raros): {$contadores['estado'][2]}\n\n";
     
-    echo "📁 ARCHIVOS REQUERIDOS:\n";
+    echo "ARCHIVOS REQUERIDOS:\n";
     echo "-----------------------\n";
-    echo "🎵 Audio: {$contadores['audio']}\n";
-    echo "🎬 Video: {$contadores['video']}\n";
-    echo "📄 Ficha: {$contadores['ficha']}\n\n";
+    echo "Audio: {$contadores['audio']}\n";
+    echo "Video: {$contadores['video']}\n";
+    echo "Ficha: {$contadores['ficha']}\n\n";
     
-    echo "🤖 MÉTODOS UTILIZADOS:\n";
+    echo "MÉTODOS UTILIZADOS:\n";
     echo "----------------------\n";
-    echo "🧠 IA: {$contadores['metodo_ia']}\n";
-    echo "🔍 Regex: {$contadores['metodo_regex']}\n\n";
+    echo "IA: {$contadores['metodo_ia']}\n";
+    echo "Regex: {$contadores['metodo_regex']}\n\n";
     
     // cerrar conexion
     $stmt_select->close();
@@ -496,5 +496,5 @@ try {
     $con->close();
     
 } catch (Exception $e) {
-    echo "❌ Error: " . $e->getMessage() . "\n";
+    echo "Error: " . $e->getMessage() . "\n";
 }
