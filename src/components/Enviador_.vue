@@ -299,7 +299,7 @@
                     :value="item.id"
                     v-model="checkeds"
                     :id="'checkbox-' + item.id"
-                    :disabled="deshabilitarChecks"
+                    :disabled="deshabilitarChecks || fueEnviado(item)"
                   />
                   <label
                     class="form-check-label"
@@ -315,11 +315,14 @@
               <td>{{ item.music_genre }}</td>
               <td>{{ item.secondary_language }}</td>
               <td v-if="showSelect">
-                <div
-                  v-if="fueEnviado(item)"
-                  style="color: green; text-align: center"
-                >
-                  ✓
+                <div v-if="fueEnviado(item)" style="text-align: center">
+                  <div
+                    v-if="fueEnviado(item).estado === '1'"
+                    style="color: blue"
+                  >
+                    ✓ Enviado
+                  </div>
+                  <div v-else style="color: green">added</div>
                 </div>
                 <div v-else style="color: #ccc; text-align: center">⭕</div>
               </td>
@@ -1087,19 +1090,13 @@ onMounted(() => {
 });
 
 function fueEnviado(item) {
-  if (!showSelect.value || !selectedCamp.value) return false;
+  if (!showSelect.value || !selectedCamp.value) return null;
 
-  const encontrado = emailsYaEnviados.value.some(
+  const encontrado = emailsYaEnviados.value.find(
     (e) => e.id_contacto == item.id && e.campaña_id == selectedCamp.value.id,
   );
 
-  // Debug temporal para verificar
-  console.log(
-    `Verificando contacto ID ${item.id} para campaña ${selectedCamp.value.id}:`,
-    encontrado,
-  );
-
-  return encontrado;
+  return encontrado; // devuelve el objeto o undefined
 }
 
 const checkeds = ref([]);
@@ -1118,13 +1115,18 @@ function selectAllChecks(event) {
   if (marcado) {
     //   agrega todos los IDs visibles que no estén ya seleccionados
     const nuevos = datosFiltrados.value
+      .filter((item) => !fueEnviado(item))
       .map((item) => item.id)
       .filter((id) => !checkeds.value.includes(id));
     checkeds.value = [...checkeds.value, ...nuevos];
   } else {
     //elimina visibles ids
-    const visibles = datosFiltrados.value.map((item) => item.id);
-    checkeds.value = checkeds.value.filter((id) => !visibles.includes(id));
+    const visiblesNoBloqueados = datosFiltrados.value
+      .filter((item) => !fueEnviado(item))
+      .map((item) => item.id);
+    checkeds.value = checkeds.value.filter(
+      (id) => !visiblesNoBloqueados.includes(id),
+    );
   }
 
   // info en consola
