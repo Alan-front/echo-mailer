@@ -318,13 +318,17 @@
                 <div v-if="fueEnviado(item)" style="text-align: center">
                   <div
                     v-if="fueEnviado(item).estado === '1'"
-                    style="color: blue"
+                    style="color: var(--dark-echo)"
                   >
-                    ✓ Enviado
+                    <i class="fa-solid fa-envelope-circle-check fa-lg"></i>
                   </div>
-                  <div v-else style="color: green">added</div>
+                  <div v-else style="color: var(--dark-echo)">
+                    <i class="fa-solid fa-bookmark fa-lg"></i>
+                  </div>
                 </div>
-                <div v-else style="color: #ccc; text-align: center">⭕</div>
+                <div v-else style="color: var(--dark-echo); text-align: center">
+                  <i class="fa-regular fa-circle fa-lg"></i>
+                </div>
               </td>
             </tr>
           </tbody>
