@@ -315,7 +315,7 @@
             v-if="mensajeSeleccionado"
             @click="enviarRespuesta"
           >
-            Programar
+            {{ programando ? "Programar" : "Revisión manual" }}
           </button>
         </div>
       </div>
@@ -1020,35 +1020,75 @@ const abrirMensaje = (mensaje) => {
 };
 
 const enviarRespuesta = () => {
-  console.log("Enviando respuesta:", archivosSeleccionados.value);
+  const payload = programando.value
+    ? {
+        id_respuesta: mensajeSeleccionado.value.id,
+        estado: 0,
+        audio: archivosSeleccionados.value.audio,
+        video: archivosSeleccionados.value.video,
+        ficha: archivosSeleccionados.value.ficha,
+      }
+    : {
+        id_respuesta: mensajeSeleccionado.value.id,
+        estado: 2,
+        audio: 0,
+        video: 0,
+        ficha: 0,
+      };
 
   fetch("http://localhost/prom_system/api/bandeja/update_bandeja.php", {
     method: "POST",
     headers: { "Content-Type": "application/json" },
-    body: JSON.stringify(archivosSeleccionados.value),
+    body: JSON.stringify(payload),
   })
     .then((res) => res.json())
     .then((data) => {
-      console.log("Respuesta del servidor:", data);
       if (data.ok) {
-        mostrarToast("Respuesta programada correctamente ✓");
+        mostrarToast(
+          programando.value
+            ? "Respuesta programada correctamente ✓"
+            : "Marcado para revisión manual ✓",
+        );
         const modal = bootstrap.Modal.getInstance(
           document.getElementById("mensajeProg"),
         );
         modal.hide();
-        // Actualizar la bandeja para reflejar los cambios
         abrirBandeja(campaniaActiva.value);
       } else {
-        mostrarToastError(
-          "Error: " + (data.error || "No se pudo programar la respuesta"),
-        );
+        mostrarToastError("Error: " + (data.error || "No se pudo actualizar"));
       }
     })
-    .catch((err) => {
-      console.error("Error al enviar:", err);
-      mostrarToastError("Error de conexión");
-    });
+    .catch(() => mostrarToastError("Error de conexión"));
 };
+
+// const marcarRevision = () => {
+//   programando.value = false;
+//   fetch("http://localhost/prom_system/api/bandeja/update_bandeja.php", {
+//     method: "POST",
+//     headers: { "Content-Type": "application/json" },
+//     body: JSON.stringify({
+//       id_respuesta: mensajeSeleccionado.value.id,
+//       estado: 2,
+//       audio: 0,
+//       video: 0,
+//       ficha: 0,
+//     }),
+//   })
+//     .then((res) => res.json())
+//     .then((data) => {
+//       if (data.ok) {
+//         mostrarToast("Marcado para revisión manual ✓");
+//         const modal = bootstrap.Modal.getInstance(
+//           document.getElementById("mensajeProg"),
+//         );
+//         modal.hide();
+//         abrirBandeja(campaniaActiva.value);
+//       } else {
+//         mostrarToastError("Error: " + (data.error || "No se pudo actualizar"));
+//       }
+//     })
+//     .catch(() => mostrarToastError("Error de conexión"));
+// };
 
 /* toggle menu debug */
 const showDebugMenu = ref(false);
